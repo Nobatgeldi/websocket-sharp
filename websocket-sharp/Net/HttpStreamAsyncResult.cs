@@ -47,13 +47,13 @@ namespace WebSocketSharp.Net
     #region Private Fields
 
     private byte[]           _buffer;
-    private readonly AsyncCallback    _callback;
+    private AsyncCallback    _callback;
     private bool             _completed;
     private int              _count;
     private Exception        _exception;
     private int              _offset;
-    private readonly object           _state;
-    private readonly object           _sync;
+    private object           _state;
+    private object           _sync;
     private int              _syncRead;
     private ManualResetEvent _waitHandle;
 

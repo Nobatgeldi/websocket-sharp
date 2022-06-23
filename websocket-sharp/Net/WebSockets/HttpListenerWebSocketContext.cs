@@ -42,8 +42,8 @@ namespace WebSocketSharp.Net.WebSockets
   {
     #region Private Fields
 
-    private readonly HttpListenerContext _context;
-    private readonly WebSocket           _websocket;
+    private HttpListenerContext _context;
+    private WebSocket           _websocket;
 
     #endregion
 

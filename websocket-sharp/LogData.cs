@@ -39,10 +39,10 @@ namespace WebSocketSharp
   {
     #region Private Fields
 
-    private readonly StackFrame _caller;
-    private readonly DateTime   _date;
-    private readonly LogLevel   _level;
-    private readonly string     _message;
+    private StackFrame _caller;
+    private DateTime   _date;
+    private LogLevel   _level;
+    private string     _message;
 
     #endregion
 

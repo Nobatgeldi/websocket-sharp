@@ -56,8 +56,8 @@ namespace WebSocketSharp.Server
   {
     #region Private Fields
 
-    private readonly HttpListenerContext _context;
-    private readonly string              _docRootPath;
+    private HttpListenerContext _context;
+    private string              _docRootPath;
 
     #endregion
 
@@ -156,8 +156,8 @@ namespace WebSocketSharp.Server
     #region Public Methods
 
     /// <summary>
-    /// Reads the specified file from the document folder of
-    /// the <see cref="HttpServer"/>.
+    /// Reads the specified file from the document folder of the
+    /// <see cref="HttpServer"/> class.
     /// </summary>
     /// <returns>
     ///   <para>

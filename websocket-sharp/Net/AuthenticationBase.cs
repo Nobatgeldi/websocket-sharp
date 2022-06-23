@@ -36,7 +36,7 @@ namespace WebSocketSharp.Net
   {
     #region Private Fields
 
-    private readonly AuthenticationSchemes _scheme;
+    private AuthenticationSchemes _scheme;
 
     #endregion
 

@@ -34,8 +34,8 @@ namespace WebSocketSharp.Net
   {
     #region Private Fields
 
-    private readonly string         _headerName;
-    private readonly HttpHeaderType _headerType;
+    private string         _headerName;
+    private HttpHeaderType _headerType;
 
     #endregion
 

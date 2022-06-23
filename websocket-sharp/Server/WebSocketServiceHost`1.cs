@@ -35,7 +35,7 @@ namespace WebSocketSharp.Server
   {
     #region Private Fields
 
-    private readonly Func<TBehavior> _creator;
+    private Func<TBehavior> _creator;
 
     #endregion
 

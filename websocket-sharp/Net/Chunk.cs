@@ -45,7 +45,7 @@ namespace WebSocketSharp.Net
   {
     #region Private Fields
 
-    private readonly byte[] _data;
+    private byte[] _data;
     private int    _offset;
 
     #endregion

@@ -50,8 +50,8 @@ namespace WebSocketSharp
 
     private string _data;
     private bool   _dataSet;
-    private readonly Opcode _opcode;
-    private readonly byte[] _rawData;
+    private Opcode _opcode;
+    private byte[] _rawData;
 
     #endregion
 

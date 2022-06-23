@@ -75,21 +75,21 @@ namespace WebSocketSharp.Net
     private AuthenticationSchemes                            _authSchemes;
     private Func<HttpListenerRequest, AuthenticationSchemes> _authSchemeSelector;
     private string                                           _certFolderPath;
-    private readonly Queue<HttpListenerContext>                       _contextQueue;
-    private readonly LinkedList<HttpListenerContext>                  _contextRegistry;
-    private readonly object                                           _contextRegistrySync;
+    private Queue<HttpListenerContext>                       _contextQueue;
+    private LinkedList<HttpListenerContext>                  _contextRegistry;
+    private object                                           _contextRegistrySync;
     private static readonly string                           _defaultRealm;
     private bool                                             _disposed;
     private bool                                             _ignoreWriteExceptions;
     private volatile bool                                    _listening;
-    private readonly Logger                                           _log;
-    private readonly string                                           _objectName;
-    private readonly HttpListenerPrefixCollection                     _prefixes;
+    private Logger                                           _log;
+    private string                                           _objectName;
+    private HttpListenerPrefixCollection                     _prefixes;
     private string                                           _realm;
     private bool                                             _reuseAddress;
     private ServerSslConfiguration                           _sslConfig;
     private Func<IIdentity, NetworkCredential>               _userCredFinder;
-    private readonly Queue<HttpListenerAsyncResult>                   _waitQueue;
+    private Queue<HttpListenerAsyncResult>                   _waitQueue;
 
     #endregion
 

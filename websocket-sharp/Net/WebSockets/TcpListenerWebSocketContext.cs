@@ -52,17 +52,17 @@ namespace WebSocketSharp.Net.WebSockets
   {
     #region Private Fields
 
-    private readonly Logger              _log;
+    private Logger              _log;
     private NameValueCollection _queryString;
     private HttpRequest         _request;
     private Uri                 _requestUri;
-    private readonly bool                _secure;
-    private readonly System.Net.EndPoint _serverEndPoint;
-    private readonly Stream              _stream;
-    private readonly TcpClient           _tcpClient;
+    private bool                _secure;
+    private System.Net.EndPoint _serverEndPoint;
+    private Stream              _stream;
+    private TcpClient           _tcpClient;
     private IPrincipal          _user;
-    private readonly System.Net.EndPoint _userEndPoint;
-    private readonly WebSocket           _websocket;
+    private System.Net.EndPoint _userEndPoint;
+    private WebSocket           _websocket;
 
     #endregion
 

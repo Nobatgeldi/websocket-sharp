@@ -50,9 +50,9 @@ namespace WebSocketSharp.Server
   {
     #region Private Fields
 
-    private readonly Logger                  _log;
-    private readonly string                  _path;
-    private readonly WebSocketSessionManager _sessions;
+    private Logger                  _log;
+    private string                  _path;
+    private WebSocketSessionManager _sessions;
 
     #endregion
 

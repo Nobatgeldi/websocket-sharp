@@ -4,7 +4,7 @@
  *
  * The MIT License
  *
- * Copyright (c) 2012-2014 sta.blockhead
+ * Copyright (c) 2012-2022 sta.blockhead
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -159,11 +159,18 @@ namespace WebSocketSharp
     private static byte[] readMessageBodyFrom (Stream stream, string length)
     {
       long len;
-      if (!Int64.TryParse (length, out len))
-        throw new ArgumentException ("Cannot be parsed.", "length");
 
-      if (len < 0)
-        throw new ArgumentOutOfRangeException ("length", "Less than zero.");
+      if (!Int64.TryParse (length, out len)) {
+        var msg = "It cannot be parsed.";
+
+        throw new ArgumentException (msg, "length");
+      }
+
+      if (len < 0) {
+        var msg = "It is less than zero.";
+
+        throw new ArgumentOutOfRangeException ("length", msg);
+      }
 
       return len > 1024
              ? stream.ReadBytes (len, 1024)
@@ -181,9 +188,8 @@ namespace WebSocketSharp
           if (i == -1) {
             var msg = "The header could not be read from the data stream.";
 
-        buff.Add ((byte) i);
-        cnt++;
-      };
+            throw new EndOfStreamException (msg);
+          }
 
           buff.Add ((byte) i);
 
@@ -206,12 +212,11 @@ namespace WebSocketSharp
       }
       while (!end);
 
-      if (!read)
-        throw new WebSocketException ("The length of header part is greater than the max length.");
+      var bytes = buff.ToArray ();
 
-      return Encoding.UTF8.GetString (buff.ToArray ())
-             .Replace (CrLf + " ", " ")
-             .Replace (CrLf + "\t", " ")
+      return Encoding.UTF8.GetString (bytes)
+             .Replace (CrLfSp, " ")
+             .Replace (CrLfHt, " ")
              .Split (new[] { CrLf }, StringSplitOptions.RemoveEmptyEntries);
     }
 
@@ -219,21 +224,26 @@ namespace WebSocketSharp
 
     #region Protected Methods
 
-    protected static T Read<T> (Stream stream, Func<string[], T> parser, int millisecondsTimeout)
+    protected static T Read<T> (
+      Stream stream, Func<string[], T> parser, int millisecondsTimeout
+    )
       where T : HttpBase
     {
+      T ret = null;
+
       var timeout = false;
       var timer = new Timer (
-        state => {
-          timeout = true;
-          stream.Close ();
-        },
-        null,
-        millisecondsTimeout,
-        -1);
+                    state => {
+                      timeout = true;
+                      stream.Close ();
+                    },
+                    null,
+                    millisecondsTimeout,
+                    -1
+                  );
 
-      T http = null;
       Exception exception = null;
+
       try {
         var header = readMessageHeaderFrom (stream);
         ret = parser (header);
@@ -260,10 +270,10 @@ namespace WebSocketSharp
       if (exception != null) {
         var msg = "An exception has occurred.";
 
-      if (msg != null)
         throw new WebSocketException (msg, exception);
+      }
 
-      return http;
+      return ret;
     }
 
     #endregion

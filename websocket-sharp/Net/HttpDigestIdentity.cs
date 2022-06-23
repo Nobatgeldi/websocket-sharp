@@ -40,7 +40,7 @@ namespace WebSocketSharp.Net
   {
     #region Private Fields
 
-    private readonly NameValueCollection _parameters;
+    private NameValueCollection _parameters;
 
     #endregion
 
