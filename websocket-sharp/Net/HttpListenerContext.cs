@@ -169,10 +169,6 @@ namespace WebSocketSharp.Net
       get {
         return _user;
       }
-
-      internal set {
-        _user = value;
-      }
     }
 
     #endregion
@@ -258,6 +254,31 @@ namespace WebSocketSharp.Net
       _errorMessage = message;
 
       SendError ();
+    }
+
+    internal bool SetUser (
+      AuthenticationSchemes scheme,
+      string realm,
+      Func<IIdentity, NetworkCredential> credentialsFinder
+    )
+    {
+      var user = HttpUtility.CreateUser (
+                   _request.Headers["Authorization"],
+                   scheme,
+                   realm,
+                   _request.HttpMethod,
+                   credentialsFinder
+                 );
+
+      if (user == null)
+        return false;
+
+      if (!user.Identity.IsAuthenticated)
+        return false;
+
+      _user = user;
+
+      return true;
     }
 
     internal void Unregister ()
