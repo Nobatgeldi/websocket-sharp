@@ -4,7 +4,7 @@
  *
  * The MIT License
  *
- * Copyright (c) 2012-2021 sta.blockhead
+ * Copyright (c) 2012-2022 sta.blockhead
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -29,6 +29,7 @@
 using System;
 using System.Collections.Specialized;
 using System.IO;
+using System.Security.Principal;
 using WebSocketSharp.Net;
 using WebSocketSharp.Net.WebSockets;
 
@@ -74,40 +75,77 @@ namespace WebSocketSharp.Server
     #region Protected Properties
 
     /// <summary>
-    /// Gets the HTTP headers included in a WebSocket handshake request.
+    /// Gets the HTTP headers for a session.
     /// </summary>
     /// <value>
-    ///   <para>
-    ///   A <see cref="NameValueCollection"/> that contains the headers.
-    ///   </para>
-    ///   <para>
-    ///   <see langword="null"/> if the session has not started yet.
-    ///   </para>
+    /// A <see cref="NameValueCollection"/> that contains the headers
+    /// included in the WebSocket handshake request.
     /// </value>
+    /// <exception cref="InvalidOperationException">
+    /// The session has not started yet.
+    /// </exception>
     protected NameValueCollection Headers {
       get {
-        return _context != null ? _context.Headers : null;
+        if (_context == null) {
+          var msg = "The session has not started yet.";
+
+          throw new InvalidOperationException (msg);
+        }
+
+        return _context.Headers;
       }
     }
 
     /// <summary>
-    /// Gets the query string included in a WebSocket handshake request.
+    /// Gets the query string for a session.
     /// </summary>
     /// <value>
     ///   <para>
     ///   A <see cref="NameValueCollection"/> that contains the query
-    ///   parameters.
+    ///   parameters included in the WebSocket handshake request.
     ///   </para>
     ///   <para>
     ///   An empty collection if not included.
     ///   </para>
-    ///   <para>
-    ///   <see langword="null"/> if the session has not started yet.
-    ///   </para>
     /// </value>
+    /// <exception cref="InvalidOperationException">
+    /// The session has not started yet.
+    /// </exception>
     protected NameValueCollection QueryString {
       get {
-        return _context != null ? _context.QueryString : null;
+        if (_context == null) {
+          var msg = "The session has not started yet.";
+
+          throw new InvalidOperationException (msg);
+        }
+
+        return _context.QueryString;
+      }
+    }
+
+    /// <summary>
+    /// Gets the current state of the WebSocket interface for a session.
+    /// </summary>
+    /// <value>
+    ///   <para>
+    ///   One of the <see cref="WebSocketState"/> enum values.
+    ///   </para>
+    ///   <para>
+    ///   It indicates the current state of the interface.
+    ///   </para>
+    /// </value>
+    /// <exception cref="InvalidOperationException">
+    /// The session has not started yet.
+    /// </exception>
+    protected WebSocketState ReadyState {
+      get {
+        if (_websocket == null) {
+          var msg = "The session has not started yet.";
+
+          throw new InvalidOperationException (msg);
+        }
+
+        return _websocket.ReadyState;
       }
     }
 
@@ -115,17 +153,70 @@ namespace WebSocketSharp.Server
     /// Gets the management function for the sessions in the service.
     /// </summary>
     /// <value>
-    ///   <para>
-    ///   A <see cref="WebSocketSessionManager"/> that manages the sessions in
-    ///   the service.
-    ///   </para>
-    ///   <para>
-    ///   <see langword="null"/> if the session has not started yet.
-    ///   </para>
+    /// A <see cref="WebSocketSessionManager"/> that manages the sessions in
+    /// the service.
     /// </value>
+    /// <exception cref="InvalidOperationException">
+    /// The session has not started yet.
+    /// </exception>
     protected WebSocketSessionManager Sessions {
       get {
+        if (_sessions == null) {
+          var msg = "The session has not started yet.";
+
+          throw new InvalidOperationException (msg);
+        }
+
         return _sessions;
+      }
+    }
+
+    /// <summary>
+    /// Gets the client information for a session.
+    /// </summary>
+    /// <value>
+    ///   <para>
+    ///   A <see cref="IPrincipal"/> instance that represents identity,
+    ///   authentication, and security roles for the client.
+    ///   </para>
+    ///   <para>
+    ///   <see langword="null"/> if the client is not authenticated.
+    ///   </para>
+    /// </value>
+    /// <exception cref="InvalidOperationException">
+    /// The session has not started yet.
+    /// </exception>
+    protected IPrincipal User {
+      get {
+        if (_context == null) {
+          var msg = "The session has not started yet.";
+
+          throw new InvalidOperationException (msg);
+        }
+
+        return _context.User;
+      }
+    }
+
+    /// <summary>
+    /// Gets the client endpoint for a session.
+    /// </summary>
+    /// <value>
+    /// A <see cref="System.Net.IPEndPoint"/> that represents the client
+    /// IP address and port number.
+    /// </value>
+    /// <exception cref="InvalidOperationException">
+    /// The session has not started yet.
+    /// </exception>
+    protected System.Net.IPEndPoint UserEndPoint {
+      get {
+        if (_context == null) {
+          var msg = "The session has not started yet.";
+
+          throw new InvalidOperationException (msg);
+        }
+
+        return _context.UserEndPoint;
       }
     }
 
@@ -134,62 +225,20 @@ namespace WebSocketSharp.Server
     #region Public Properties
 
     /// <summary>
-    /// Gets the current state of the WebSocket connection for a session.
+    /// Gets or sets the delegate used to validate the HTTP cookies.
     /// </summary>
     /// <value>
     ///   <para>
-    ///   One of the <see cref="WebSocketState"/> enum values.
+    ///   A <see cref="T:System.Func{CookieCollection, CookieCollection, bool}"/>
+    ///   delegate.
     ///   </para>
     ///   <para>
-    ///   It indicates the current state of the connection.
-    ///   </para>
-    ///   <para>
-    ///   <see cref="WebSocketState.Connecting"/> if the session has not
-    ///   started yet.
-    ///   </para>
-    /// </value>
-    public WebSocketState ConnectionState {
-      get {
-        return _websocket != null
-               ? _websocket.ReadyState
-               : WebSocketState.Connecting;
-      }
-    }
-
-    /// <summary>
-    /// Gets the information in a WebSocket handshake request to the service.
-    /// </summary>
-    /// <value>
-    ///   <para>
-    ///   A <see cref="WebSocketContext"/> instance that provides the access to
-    ///   the information in the handshake request.
-    ///   </para>
-    ///   <para>
-    ///   <see langword="null"/> if the session has not started yet.
-    ///   </para>
-    /// </value>
-    public WebSocketContext Context {
-      get {
-        return _context;
-      }
-    }
-
-    /// <summary>
-    /// Gets or sets the delegate used to validate the HTTP cookies included in
-    /// a WebSocket handshake request to the service.
-    /// </summary>
-    /// <value>
-    ///   <para>
-    ///   A <c>Func&lt;CookieCollection, CookieCollection, bool&gt;</c> delegate
-    ///   or <see langword="null"/> if not needed.
-    ///   </para>
-    ///   <para>
-    ///   The delegate invokes the method called when the WebSocket instance
+    ///   The delegate invokes the method called when the WebSocket interface
     ///   for a session validates the handshake request.
     ///   </para>
     ///   <para>
     ///   1st <see cref="CookieCollection"/> parameter passed to the method
-    ///   contains the cookies to validate if present.
+    ///   contains the cookies to validate.
     ///   </para>
     ///   <para>
     ///   2nd <see cref="CookieCollection"/> parameter passed to the method
@@ -197,6 +246,9 @@ namespace WebSocketSharp.Server
     ///   </para>
     ///   <para>
     ///   The method must return <c>true</c> if the cookies are valid.
+    ///   </para>
+    ///   <para>
+    ///   <see langword="null"/> if not necessary.
     ///   </para>
     ///   <para>
     ///   The default value is <see langword="null"/>.
@@ -213,13 +265,13 @@ namespace WebSocketSharp.Server
     }
 
     /// <summary>
-    /// Gets or sets a value indicating whether the WebSocket instance for
+    /// Gets or sets a value indicating whether the WebSocket interface for
     /// a session emits the message event when receives a ping.
     /// </summary>
     /// <value>
     ///   <para>
-    ///   <c>true</c> if the WebSocket instance emits the message event
-    ///   when receives a ping; otherwise, <c>false</c>.
+    ///   <c>true</c> if the interface emits the message event when receives
+    ///   a ping; otherwise, <c>false</c>.
     ///   </para>
     ///   <para>
     ///   The default value is <c>false</c>.
@@ -259,14 +311,13 @@ namespace WebSocketSharp.Server
     }
 
     /// <summary>
-    /// Gets or sets a value indicating whether the service ignores
-    /// the Sec-WebSocket-Extensions header included in a WebSocket
-    /// handshake request.
+    /// Gets or sets a value indicating whether the WebSocket interface for
+    /// a session ignores the Sec-WebSocket-Extensions header.
     /// </summary>
     /// <value>
     ///   <para>
-    ///   <c>true</c> if the service ignores the extensions requested
-    ///   from a client; otherwise, <c>false</c>.
+    ///   <c>true</c> if the interface ignores the extensions requested
+    ///   from the client; otherwise, <c>false</c>.
     ///   </para>
     ///   <para>
     ///   The default value is <c>false</c>.
@@ -283,16 +334,14 @@ namespace WebSocketSharp.Server
     }
 
     /// <summary>
-    /// Gets or sets the delegate used to validate the Origin header included in
-    /// a WebSocket handshake request to the service.
+    /// Gets or sets the delegate used to validate the Origin header.
     /// </summary>
     /// <value>
     ///   <para>
-    ///   A <c>Func&lt;string, bool&gt;</c> delegate or <see langword="null"/>
-    ///   if not needed.
+    ///   A <see cref="T:System.Func{string, bool}"/> delegate.
     ///   </para>
     ///   <para>
-    ///   The delegate invokes the method called when the WebSocket instance
+    ///   The delegate invokes the method called when the WebSocket interface
     ///   for a session validates the handshake request.
     ///   </para>
     ///   <para>
@@ -302,6 +351,9 @@ namespace WebSocketSharp.Server
     ///   </para>
     ///   <para>
     ///   The method must return <c>true</c> if the header value is valid.
+    ///   </para>
+    ///   <para>
+    ///   <see langword="null"/> if not necessary.
     ///   </para>
     ///   <para>
     ///   The default value is <see langword="null"/>.
@@ -318,14 +370,14 @@ namespace WebSocketSharp.Server
     }
 
     /// <summary>
-    /// Gets or sets the name of the WebSocket subprotocol for the service.
+    /// Gets or sets the name of the WebSocket subprotocol for a session.
     /// </summary>
     /// <value>
     ///   <para>
     ///   A <see cref="string"/> that represents the name of the subprotocol.
     ///   </para>
     ///   <para>
-    ///   The value specified for a set must be a token defined in
+    ///   The value specified for a set operation must be a token defined in
     ///   <see href="http://tools.ietf.org/html/rfc2616#section-2.2">
     ///   RFC 2616</see>.
     ///   </para>
@@ -360,7 +412,7 @@ namespace WebSocketSharp.Server
         }
 
         if (!value.IsToken ()) {
-          var msg = "It is not a token.";
+          var msg = "Not a token.";
 
           throw new ArgumentException (msg, "value");
         }
@@ -394,16 +446,22 @@ namespace WebSocketSharp.Server
     private string checkHandshakeRequest (WebSocketContext context)
     {
       if (_originValidator != null) {
-        if (!_originValidator (context.Origin))
-          return "It includes no Origin header or an invalid one.";
+        if (!_originValidator (context.Origin)) {
+          var msg = "The Origin header is non-existent or invalid.";
+
+          return msg;
+        }
       }
 
       if (_cookiesValidator != null) {
         var req = context.CookieCollection;
         var res = context.WebSocket.CookieCollection;
 
-        if (!_cookiesValidator (req, res))
-          return "It includes no cookie or an invalid one.";
+        if (!_cookiesValidator (req, res)) {
+          var msg = "The Cookie header is non-existent or invalid.";
+
+          return msg;
+        }
       }
 
       return null;
@@ -471,7 +529,7 @@ namespace WebSocketSharp.Server
       _websocket.OnError += onError;
       _websocket.OnClose += onClose;
 
-      _websocket.InternalAccept ();
+      _websocket.Accept ();
     }
 
     #endregion
@@ -1229,6 +1287,28 @@ namespace WebSocketSharp.Server
       }
 
       _websocket.SendAsync (stream, length, completed);
+    }
+
+    #endregion
+
+    #region Explicit Interface Implementations
+
+    /// <summary>
+    /// Gets the WebSocket interface for a session.
+    /// </summary>
+    /// <value>
+    ///   <para>
+    ///   A <see cref="WebSocketSharp.WebSocket"/> that represents
+    ///   the interface.
+    ///   </para>
+    ///   <para>
+    ///   <see langword="null"/> if the session has not started yet.
+    ///   </para>
+    /// </value>
+    WebSocket IWebSocketSession.WebSocket {
+      get {
+        return _websocket;
+      }
     }
 
     #endregion
