@@ -265,8 +265,8 @@ namespace WebSocketSharp.Server
     }
 
     /// <summary>
-    /// Gets or sets a value indicating whether the WebSocket interface for
-    /// a session emits the message event when receives a ping.
+    /// Gets or sets a value indicating whether the message event is emitted
+    /// when the WebSocket interface for a session receives a ping.
     /// </summary>
     /// <value>
     ///   <para>
@@ -540,8 +540,8 @@ namespace WebSocketSharp.Server
     /// Closes the WebSocket connection for a session.
     /// </summary>
     /// <remarks>
-    /// This method does nothing if the current state of the connection is
-    /// Closing or Closed.
+    /// This method does nothing if the current state of the WebSocket
+    /// interface is Closing or Closed.
     /// </remarks>
     /// <exception cref="InvalidOperationException">
     /// The session has not started yet.
@@ -562,8 +562,8 @@ namespace WebSocketSharp.Server
     /// code and reason.
     /// </summary>
     /// <remarks>
-    /// This method does nothing if the current state of the connection is
-    /// Closing or Closed.
+    /// This method does nothing if the current state of the WebSocket
+    /// interface is Closing or Closed.
     /// </remarks>
     /// <param name="code">
     ///   <para>
@@ -581,7 +581,7 @@ namespace WebSocketSharp.Server
     ///   A <see cref="string"/> that specifies the reason for the close.
     ///   </para>
     ///   <para>
-    ///   The size must be 123 bytes or less in UTF-8.
+    ///   Its size must be 123 bytes or less in UTF-8.
     ///   </para>
     /// </param>
     /// <exception cref="InvalidOperationException">
@@ -606,7 +606,8 @@ namespace WebSocketSharp.Server
     ///   -or-
     ///   </para>
     ///   <para>
-    ///   <paramref name="code"/> is 1005 (no status) and there is reason.
+    ///   <paramref name="code"/> is 1005 (no status) and
+    ///   <paramref name="reason"/> is specified.
     ///   </para>
     ///   <para>
     ///   -or-
@@ -631,8 +632,8 @@ namespace WebSocketSharp.Server
     /// code and reason.
     /// </summary>
     /// <remarks>
-    /// This method does nothing if the current state of the connection is
-    /// Closing or Closed.
+    /// This method does nothing if the current state of the WebSocket
+    /// interface is Closing or Closed.
     /// </remarks>
     /// <param name="code">
     ///   <para>
@@ -647,26 +648,22 @@ namespace WebSocketSharp.Server
     ///   A <see cref="string"/> that specifies the reason for the close.
     ///   </para>
     ///   <para>
-    ///   The size must be 123 bytes or less in UTF-8.
+    ///   Its size must be 123 bytes or less in UTF-8.
     ///   </para>
     /// </param>
     /// <exception cref="InvalidOperationException">
     /// The session has not started yet.
     /// </exception>
-    /// <exception cref="ArgumentOutOfRangeException">
-    /// The size of <paramref name="reason"/> is greater than 123 bytes.
-    /// </exception>
     /// <exception cref="ArgumentException">
     ///   <para>
-    ///   <paramref name="code"/> is
-    ///   <see cref="CloseStatusCode.MandatoryExtension"/>.
+    ///   <paramref name="code"/> is <see cref="CloseStatusCode.MandatoryExtension"/>.
     ///   </para>
     ///   <para>
     ///   -or-
     ///   </para>
     ///   <para>
-    ///   <paramref name="code"/> is
-    ///   <see cref="CloseStatusCode.NoStatus"/> and there is reason.
+    ///   <paramref name="code"/> is <see cref="CloseStatusCode.NoStatus"/> and
+    ///   <paramref name="reason"/> is specified.
     ///   </para>
     ///   <para>
     ///   -or-
@@ -674,6 +671,9 @@ namespace WebSocketSharp.Server
     ///   <para>
     ///   <paramref name="reason"/> could not be UTF-8-encoded.
     ///   </para>
+    /// </exception>
+    /// <exception cref="ArgumentOutOfRangeException">
+    /// The size of <paramref name="reason"/> is greater than 123 bytes.
     /// </exception>
     protected void Close (CloseStatusCode code, string reason)
     {
@@ -694,8 +694,8 @@ namespace WebSocketSharp.Server
     ///   This method does not wait for the close to be complete.
     ///   </para>
     ///   <para>
-    ///   This method does nothing if the current state of the connection is
-    ///   Closing or Closed.
+    ///   This method does nothing if the current state of the WebSocket
+    ///   interface is Closing or Closed.
     ///   </para>
     /// </remarks>
     /// <exception cref="InvalidOperationException">
@@ -721,8 +721,8 @@ namespace WebSocketSharp.Server
     ///   This method does not wait for the close to be complete.
     ///   </para>
     ///   <para>
-    ///   This method does nothing if the current state of the connection is
-    ///   Closing or Closed.
+    ///   This method does nothing if the current state of the WebSocket
+    ///   interface is Closing or Closed.
     ///   </para>
     /// </remarks>
     /// <param name="code">
@@ -741,7 +741,7 @@ namespace WebSocketSharp.Server
     ///   A <see cref="string"/> that specifies the reason for the close.
     ///   </para>
     ///   <para>
-    ///   The size must be 123 bytes or less in UTF-8.
+    ///   Its size must be 123 bytes or less in UTF-8.
     ///   </para>
     /// </param>
     /// <exception cref="InvalidOperationException">
@@ -766,7 +766,8 @@ namespace WebSocketSharp.Server
     ///   -or-
     ///   </para>
     ///   <para>
-    ///   <paramref name="code"/> is 1005 (no status) and there is reason.
+    ///   <paramref name="code"/> is 1005 (no status) and
+    ///   <paramref name="reason"/> is specified.
     ///   </para>
     ///   <para>
     ///   -or-
@@ -795,8 +796,8 @@ namespace WebSocketSharp.Server
     ///   This method does not wait for the close to be complete.
     ///   </para>
     ///   <para>
-    ///   This method does nothing if the current state of the connection is
-    ///   Closing or Closed.
+    ///   This method does nothing if the current state of the WebSocket
+    ///   interface is Closing or Closed.
     ///   </para>
     /// </remarks>
     /// <param name="code">
@@ -812,7 +813,7 @@ namespace WebSocketSharp.Server
     ///   A <see cref="string"/> that specifies the reason for the close.
     ///   </para>
     ///   <para>
-    ///   The size must be 123 bytes or less in UTF-8.
+    ///   Its size must be 123 bytes or less in UTF-8.
     ///   </para>
     /// </param>
     /// <exception cref="InvalidOperationException">
@@ -820,15 +821,14 @@ namespace WebSocketSharp.Server
     /// </exception>
     /// <exception cref="ArgumentException">
     ///   <para>
-    ///   <paramref name="code"/> is
-    ///   <see cref="CloseStatusCode.MandatoryExtension"/>.
+    ///   <paramref name="code"/> is <see cref="CloseStatusCode.MandatoryExtension"/>.
     ///   </para>
     ///   <para>
     ///   -or-
     ///   </para>
     ///   <para>
-    ///   <paramref name="code"/> is
-    ///   <see cref="CloseStatusCode.NoStatus"/> and there is reason.
+    ///   <paramref name="code"/> is <see cref="CloseStatusCode.NoStatus"/> and
+    ///   <paramref name="reason"/> is specified.
     ///   </para>
     ///   <para>
     ///   -or-
@@ -863,7 +863,7 @@ namespace WebSocketSharp.Server
     }
 
     /// <summary>
-    /// Called when the WebSocket instance for a session gets an error.
+    /// Called when the WebSocket interface for a session gets an error.
     /// </summary>
     /// <param name="e">
     /// A <see cref="ErrorEventArgs"/> that represents the event data passed
@@ -874,7 +874,7 @@ namespace WebSocketSharp.Server
     }
 
     /// <summary>
-    /// Called when the WebSocket instance for a session receives a message.
+    /// Called when the WebSocket interface for a session receives a message.
     /// </summary>
     /// <param name="e">
     /// A <see cref="MessageEventArgs"/> that represents the event data passed
@@ -892,10 +892,10 @@ namespace WebSocketSharp.Server
     }
 
     /// <summary>
-    /// Sends a ping to a client using the WebSocket connection.
+    /// Sends a ping to the client for a session.
     /// </summary>
     /// <returns>
-    /// <c>true</c> if the send has done with no error and a pong has been
+    /// <c>true</c> if the send has successfully done and a pong has been
     /// received within a time; otherwise, <c>false</c>.
     /// </returns>
     /// <exception cref="InvalidOperationException">
@@ -913,11 +913,10 @@ namespace WebSocketSharp.Server
     }
 
     /// <summary>
-    /// Sends a ping with the specified message to a client using
-    /// the WebSocket connection.
+    /// Sends a ping with the specified message to the client for a session.
     /// </summary>
     /// <returns>
-    /// <c>true</c> if the send has done with no error and a pong has been
+    /// <c>true</c> if the send has successfully done and a pong has been
     /// received within a time; otherwise, <c>false</c>.
     /// </returns>
     /// <param name="message">
@@ -925,7 +924,7 @@ namespace WebSocketSharp.Server
     ///   A <see cref="string"/> that specifies the message to send.
     ///   </para>
     ///   <para>
-    ///   The size must be 125 bytes or less in UTF-8.
+    ///   Its size must be 125 bytes or less in UTF-8.
     ///   </para>
     /// </param>
     /// <exception cref="InvalidOperationException">
@@ -949,13 +948,21 @@ namespace WebSocketSharp.Server
     }
 
     /// <summary>
-    /// Sends the specified data to a client using the WebSocket connection.
+    /// Sends the specified data to the client for a session.
     /// </summary>
     /// <param name="data">
     /// An array of <see cref="byte"/> that specifies the binary data to send.
     /// </param>
     /// <exception cref="InvalidOperationException">
-    /// The current state of the connection is not Open.
+    ///   <para>
+    ///   The session has not started yet.
+    ///   </para>
+    ///   <para>
+    ///   -or-
+    ///   </para>
+    ///   <para>
+    ///   The current state of the WebSocket interface is not Open.
+    ///   </para>
     /// </exception>
     /// <exception cref="ArgumentNullException">
     /// <paramref name="data"/> is <see langword="null"/>.
@@ -963,7 +970,7 @@ namespace WebSocketSharp.Server
     protected void Send (byte[] data)
     {
       if (_websocket == null) {
-        var msg = "The current state of the connection is not Open.";
+        var msg = "The session has not started yet.";
 
         throw new InvalidOperationException (msg);
       }
@@ -972,7 +979,7 @@ namespace WebSocketSharp.Server
     }
 
     /// <summary>
-    /// Sends the specified file to a client using the WebSocket connection.
+    /// Sends the specified file to the client for a session.
     /// </summary>
     /// <param name="fileInfo">
     ///   <para>
@@ -983,7 +990,15 @@ namespace WebSocketSharp.Server
     ///   </para>
     /// </param>
     /// <exception cref="InvalidOperationException">
-    /// The current state of the connection is not Open.
+    ///   <para>
+    ///   The session has not started yet.
+    ///   </para>
+    ///   <para>
+    ///   -or-
+    ///   </para>
+    ///   <para>
+    ///   The current state of the WebSocket interface is not Open.
+    ///   </para>
     /// </exception>
     /// <exception cref="ArgumentNullException">
     /// <paramref name="fileInfo"/> is <see langword="null"/>.
@@ -1002,7 +1017,7 @@ namespace WebSocketSharp.Server
     protected void Send (FileInfo fileInfo)
     {
       if (_websocket == null) {
-        var msg = "The current state of the connection is not Open.";
+        var msg = "The session has not started yet.";
 
         throw new InvalidOperationException (msg);
       }
@@ -1011,13 +1026,21 @@ namespace WebSocketSharp.Server
     }
 
     /// <summary>
-    /// Sends the specified data to a client using the WebSocket connection.
+    /// Sends the specified data to the client for a session.
     /// </summary>
     /// <param name="data">
     /// A <see cref="string"/> that specifies the text data to send.
     /// </param>
     /// <exception cref="InvalidOperationException">
-    /// The current state of the connection is not Open.
+    ///   <para>
+    ///   The session has not started yet.
+    ///   </para>
+    ///   <para>
+    ///   -or-
+    ///   </para>
+    ///   <para>
+    ///   The current state of the WebSocket interface is not Open.
+    ///   </para>
     /// </exception>
     /// <exception cref="ArgumentNullException">
     /// <paramref name="data"/> is <see langword="null"/>.
@@ -1028,7 +1051,7 @@ namespace WebSocketSharp.Server
     protected void Send (string data)
     {
       if (_websocket == null) {
-        var msg = "The current state of the connection is not Open.";
+        var msg = "The session has not started yet.";
 
         throw new InvalidOperationException (msg);
       }
@@ -1037,8 +1060,8 @@ namespace WebSocketSharp.Server
     }
 
     /// <summary>
-    /// Sends the data from the specified stream instance to a client using
-    /// the WebSocket connection.
+    /// Sends the data from the specified stream instance to the client for
+    /// a session.
     /// </summary>
     /// <param name="stream">
     ///   <para>
@@ -1052,7 +1075,15 @@ namespace WebSocketSharp.Server
     /// An <see cref="int"/> that specifies the number of bytes to send.
     /// </param>
     /// <exception cref="InvalidOperationException">
-    /// The current state of the connection is not Open.
+    ///   <para>
+    ///   The session has not started yet.
+    ///   </para>
+    ///   <para>
+    ///   -or-
+    ///   </para>
+    ///   <para>
+    ///   The current state of the WebSocket interface is not Open.
+    ///   </para>
     /// </exception>
     /// <exception cref="ArgumentNullException">
     /// <paramref name="stream"/> is <see langword="null"/>.
@@ -1077,7 +1108,7 @@ namespace WebSocketSharp.Server
     protected void Send (Stream stream, int length)
     {
       if (_websocket == null) {
-        var msg = "The current state of the connection is not Open.";
+        var msg = "The session has not started yet.";
 
         throw new InvalidOperationException (msg);
       }
@@ -1086,8 +1117,7 @@ namespace WebSocketSharp.Server
     }
 
     /// <summary>
-    /// Sends the specified data to a client asynchronously using
-    /// the WebSocket connection.
+    /// Sends the specified data to the client for a session asynchronously.
     /// </summary>
     /// <remarks>
     /// This method does not wait for the send to be complete.
@@ -1097,19 +1127,29 @@ namespace WebSocketSharp.Server
     /// </param>
     /// <param name="completed">
     ///   <para>
-    ///   An <c>Action&lt;bool&gt;</c> delegate or <see langword="null"/>
-    ///   if not needed.
+    ///   An <see cref="T:System.Action{bool}"/> delegate.
     ///   </para>
     ///   <para>
     ///   The delegate invokes the method called when the send is complete.
     ///   </para>
     ///   <para>
-    ///   <c>true</c> is passed to the method if the send has done with
-    ///   no error; otherwise, <c>false</c>.
+    ///   The <see cref="bool"/> parameter passed to the method is <c>true</c>
+    ///   if the send has successfully done; otherwise, <c>false</c>.
+    ///   </para>
+    ///   <para>
+    ///   <see langword="null"/> if not necessary.
     ///   </para>
     /// </param>
     /// <exception cref="InvalidOperationException">
-    /// The current state of the connection is not Open.
+    ///   <para>
+    ///   The session has not started yet.
+    ///   </para>
+    ///   <para>
+    ///   -or-
+    ///   </para>
+    ///   <para>
+    ///   The current state of the WebSocket interface is not Open.
+    ///   </para>
     /// </exception>
     /// <exception cref="ArgumentNullException">
     /// <paramref name="data"/> is <see langword="null"/>.
@@ -1117,7 +1157,7 @@ namespace WebSocketSharp.Server
     protected void SendAsync (byte[] data, Action<bool> completed)
     {
       if (_websocket == null) {
-        var msg = "The current state of the connection is not Open.";
+        var msg = "The session has not started yet.";
 
         throw new InvalidOperationException (msg);
       }
@@ -1126,8 +1166,7 @@ namespace WebSocketSharp.Server
     }
 
     /// <summary>
-    /// Sends the specified file to a client asynchronously using
-    /// the WebSocket connection.
+    /// Sends the specified file to the client for a session asynchronously.
     /// </summary>
     /// <remarks>
     /// This method does not wait for the send to be complete.
@@ -1142,19 +1181,29 @@ namespace WebSocketSharp.Server
     /// </param>
     /// <param name="completed">
     ///   <para>
-    ///   An <c>Action&lt;bool&gt;</c> delegate or <see langword="null"/>
-    ///   if not needed.
+    ///   An <see cref="T:System.Action{bool}"/> delegate.
     ///   </para>
     ///   <para>
     ///   The delegate invokes the method called when the send is complete.
     ///   </para>
     ///   <para>
-    ///   <c>true</c> is passed to the method if the send has done with
-    ///   no error; otherwise, <c>false</c>.
+    ///   The <see cref="bool"/> parameter passed to the method is <c>true</c>
+    ///   if the send has successfully done; otherwise, <c>false</c>.
+    ///   </para>
+    ///   <para>
+    ///   <see langword="null"/> if not necessary.
     ///   </para>
     /// </param>
     /// <exception cref="InvalidOperationException">
-    /// The current state of the connection is not Open.
+    ///   <para>
+    ///   The session has not started yet.
+    ///   </para>
+    ///   <para>
+    ///   -or-
+    ///   </para>
+    ///   <para>
+    ///   The current state of the WebSocket interface is not Open.
+    ///   </para>
     /// </exception>
     /// <exception cref="ArgumentNullException">
     /// <paramref name="fileInfo"/> is <see langword="null"/>.
@@ -1173,7 +1222,7 @@ namespace WebSocketSharp.Server
     protected void SendAsync (FileInfo fileInfo, Action<bool> completed)
     {
       if (_websocket == null) {
-        var msg = "The current state of the connection is not Open.";
+        var msg = "The session has not started yet.";
 
         throw new InvalidOperationException (msg);
       }
@@ -1182,8 +1231,7 @@ namespace WebSocketSharp.Server
     }
 
     /// <summary>
-    /// Sends the specified data to a client asynchronously using
-    /// the WebSocket connection.
+    /// Sends the specified data to the client for a session asynchronously.
     /// </summary>
     /// <remarks>
     /// This method does not wait for the send to be complete.
@@ -1193,19 +1241,29 @@ namespace WebSocketSharp.Server
     /// </param>
     /// <param name="completed">
     ///   <para>
-    ///   An <c>Action&lt;bool&gt;</c> delegate or <see langword="null"/>
-    ///   if not needed.
+    ///   An <see cref="T:System.Action{bool}"/> delegate.
     ///   </para>
     ///   <para>
     ///   The delegate invokes the method called when the send is complete.
     ///   </para>
     ///   <para>
-    ///   <c>true</c> is passed to the method if the send has done with
-    ///   no error; otherwise, <c>false</c>.
+    ///   The <see cref="bool"/> parameter passed to the method is <c>true</c>
+    ///   if the send has successfully done; otherwise, <c>false</c>.
+    ///   </para>
+    ///   <para>
+    ///   <see langword="null"/> if not necessary.
     ///   </para>
     /// </param>
     /// <exception cref="InvalidOperationException">
-    /// The current state of the connection is not Open.
+    ///   <para>
+    ///   The session has not started yet.
+    ///   </para>
+    ///   <para>
+    ///   -or-
+    ///   </para>
+    ///   <para>
+    ///   The current state of the WebSocket interface is not Open.
+    ///   </para>
     /// </exception>
     /// <exception cref="ArgumentNullException">
     /// <paramref name="data"/> is <see langword="null"/>.
@@ -1216,7 +1274,7 @@ namespace WebSocketSharp.Server
     protected void SendAsync (string data, Action<bool> completed)
     {
       if (_websocket == null) {
-        var msg = "The current state of the connection is not Open.";
+        var msg = "The session has not started yet.";
 
         throw new InvalidOperationException (msg);
       }
@@ -1225,8 +1283,8 @@ namespace WebSocketSharp.Server
     }
 
     /// <summary>
-    /// Sends the data from the specified stream instance to a client
-    /// asynchronously using the WebSocket connection.
+    /// Sends the data from the specified stream instance to the client for
+    /// a session asynchronously.
     /// </summary>
     /// <remarks>
     /// This method does not wait for the send to be complete.
@@ -1244,19 +1302,29 @@ namespace WebSocketSharp.Server
     /// </param>
     /// <param name="completed">
     ///   <para>
-    ///   An <c>Action&lt;bool&gt;</c> delegate or <see langword="null"/>
-    ///   if not needed.
+    ///   An <see cref="T:System.Action{bool}"/> delegate.
     ///   </para>
     ///   <para>
     ///   The delegate invokes the method called when the send is complete.
     ///   </para>
     ///   <para>
-    ///   <c>true</c> is passed to the method if the send has done with
-    ///   no error; otherwise, <c>false</c>.
+    ///   The <see cref="bool"/> parameter passed to the method is <c>true</c>
+    ///   if the send has successfully done; otherwise, <c>false</c>.
+    ///   </para>
+    ///   <para>
+    ///   <see langword="null"/> if not necessary.
     ///   </para>
     /// </param>
     /// <exception cref="InvalidOperationException">
-    /// The current state of the connection is not Open.
+    ///   <para>
+    ///   The session has not started yet.
+    ///   </para>
+    ///   <para>
+    ///   -or-
+    ///   </para>
+    ///   <para>
+    ///   The current state of the WebSocket interface is not Open.
+    ///   </para>
     /// </exception>
     /// <exception cref="ArgumentNullException">
     /// <paramref name="stream"/> is <see langword="null"/>.
@@ -1281,7 +1349,7 @@ namespace WebSocketSharp.Server
     protected void SendAsync (Stream stream, int length, Action<bool> completed)
     {
       if (_websocket == null) {
-        var msg = "The current state of the connection is not Open.";
+        var msg = "The session has not started yet.";
 
         throw new InvalidOperationException (msg);
       }
