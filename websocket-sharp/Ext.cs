@@ -445,30 +445,35 @@ namespace WebSocketSharp
              : uri.DnsSafeHost;
     }
 
-    internal static string GetMessage (this CloseStatusCode code)
+    internal static string GetErrorMessage (this ushort code)
     {
       switch (code) {
-        case CloseStatusCode.ProtocolError:
+        case 1002:
           return "A protocol error has occurred.";
-        case CloseStatusCode.UnsupportedData:
+        case 1003:
           return "Unsupported data has been received.";
-        case CloseStatusCode.Abnormal:
+        case 1006:
           return "An abnormal error has occurred.";
-        case CloseStatusCode.InvalidData:
+        case 1007:
           return "Invalid data has been received.";
-        case CloseStatusCode.PolicyViolation:
+        case 1008:
           return "A policy violation has occurred.";
-        case CloseStatusCode.TooBig:
+        case 1009:
           return "A too big message has been received.";
-        case CloseStatusCode.MandatoryExtension:
+        case 1010:
           return "The client did not receive expected extension(s).";
-        case CloseStatusCode.ServerError:
+        case 1011:
           return "The server got an internal error.";
-        case CloseStatusCode.TlsHandshakeFailure:
+        case 1015:
           return "An error has occurred during a TLS handshake.";
         default:
           return String.Empty;
       }
+    }
+
+    internal static string GetErrorMessage (this CloseStatusCode code)
+    {
+      return ((ushort) code).GetErrorMessage ();
     }
 
     internal static string GetName (this string nameAndValue, char separator)
@@ -480,12 +485,22 @@ namespace WebSocketSharp
 
     internal static string GetUTF8DecodedString (this byte[] bytes)
     {
-      return Encoding.UTF8.GetString (bytes);
+      try {
+        return Encoding.UTF8.GetString (bytes);
+      }
+      catch {
+        return null;
+      }
     }
 
     internal static byte[] GetUTF8EncodedBytes (this string s)
     {
-      return Encoding.UTF8.GetBytes (s);
+      try {
+        return Encoding.UTF8.GetBytes (s);
+      }
+      catch {
+        return null;
+      }
     }
 
     internal static string GetValue (this string nameAndValue, char separator)

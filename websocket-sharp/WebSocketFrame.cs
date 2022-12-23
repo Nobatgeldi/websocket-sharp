@@ -422,7 +422,7 @@ namespace WebSocketSharp
                         || frame.IsMasked
                         || frame.IsCompressed
                         ? frame._payloadData.ToString ()
-                        : utf8Decode (frame._payloadData.ApplicationData);
+                        : frame._payloadData.ApplicationData.GetUTF8DecodedString ();
 
       var fmt = @"
                     FIN: {0}
@@ -738,16 +738,6 @@ Extended Payload Length: {7}
       stream.ReadBytesAsync (len, 1024, comp, error);
     }
 
-    private static string utf8Decode (byte[] bytes)
-    {
-      try {
-        return Encoding.UTF8.GetString (bytes);
-      }
-      catch {
-        return null;
-      }
-    }
-
     #endregion
 
     #region Internal Methods
@@ -879,10 +869,10 @@ Extended Payload Length: {7}
         header = (header << 1) + (int) _mask;
         header = (header << 7) + (int) _payloadLength;
 
-        var headerAsUshort = (ushort) header;
-        var headerAsBytes = headerAsUshort.ToByteArray (ByteOrder.Big);
+        var uint16Header = (ushort) header;
+        var rawHeader = uint16Header.ToByteArray (ByteOrder.Big);
 
-        buff.Write (headerAsBytes, 0, 2);
+        buff.Write (rawHeader, 0, 2);
 
         if (_payloadLength > 125) {
           var cnt = _payloadLength == 126 ? 2 : 8;
