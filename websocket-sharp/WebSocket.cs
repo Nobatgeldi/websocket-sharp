@@ -1071,30 +1071,55 @@ namespace WebSocketSharp
     {
       message = null;
 
-      var masked = frame.IsMasked;
+      if (frame.IsMasked) {
+        if (_client) {
+          message = "A frame from the server is masked.";
 
-      if (_client && masked) {
-        message = "A frame from the server is masked.";
+          return false;
+        }
+      }
+      else {
+        if (!_client) {
+          message = "A frame from a client is not masked.";
 
-        return false;
+          return false;
+        }
       }
 
-      if (!_client && !masked) {
-        message = "A frame from a client is not masked.";
+      if (frame.IsCompressed) {
+        if (_compression == CompressionMethod.None) {
+          message = "A frame is compressed without any agreement for it.";
 
-        return false;
+          return false;
+        }
+
+        if (!frame.IsData) {
+          message = "A non data frame is compressed.";
+
+          return false;
+        }
       }
 
-      if (_inContinuation && frame.IsData) {
-        message = "A data frame was received while receiving continuation frames.";
+      if (frame.IsData) {
+        if (_inContinuation) {
+          message = "A data frame was received while receiving continuation frames.";
 
-        return false;
+          return false;
+        }
       }
 
-      if (frame.IsCompressed && _compression == CompressionMethod.None) {
-        message = "A compressed frame was received without any agreement for it.";
+      if (frame.IsControl) {
+        if (frame.Fin == Fin.More) {
+          message = "A control frame is fragmented.";
 
-        return false;
+          return false;
+        }
+
+        if (frame.PayloadLength > 125) {
+          message = "The payload length of a control frame is greater than 125.";
+
+          return false;
+        }
       }
 
       if (frame.Rsv2 == Rsv.On) {
@@ -1785,8 +1810,14 @@ namespace WebSocketSharp
     {
       string msg;
 
-      if (!checkReceivedFrame (frame, out msg))
-        throw new WebSocketException (CloseStatusCode.ProtocolError, msg);
+      if (!checkReceivedFrame (frame, out msg)) {
+        _log.Error (msg);
+        _log.Debug (frame.ToString (false));
+
+        abort (1002, "An error has occurred while receiving.");
+
+        return false;
+      }
 
       frame.Unmask ();
 
@@ -1871,7 +1902,7 @@ namespace WebSocketSharp
     private bool processUnsupportedFrame (WebSocketFrame frame)
     {
       _log.Fatal ("An unsupported frame was received.");
-      _log.Debug ("The frame is" + frame.PrintToString (false));
+      _log.Debug (frame.ToString (false));
 
       abort (1003, "There is no way to handle it.");
 
