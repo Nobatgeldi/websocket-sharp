@@ -8,7 +8,7 @@
  * The MIT License
  *
  * Copyright (c) 2004,2009 Novell, Inc. (http://www.novell.com)
- * Copyright (c) 2012-2019 sta.blockhead
+ * Copyright (c) 2012-2023 sta.blockhead
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -56,7 +56,8 @@ namespace WebSocketSharp.Net
   ///   <list type="bullet">
   ///     <item>
   ///       <term>
-  ///       <see href="http://web.archive.org/web/20020803110822/http://wp.netscape.com/newsref/std/cookie_spec.html">Netscape specification</see>
+  ///       <see href="http://web.archive.org/web/20020803110822/http://wp.netscape.com/newsref/std/cookie_spec.html">
+  ///       Netscape specification</see>
   ///       </term>
   ///     </item>
   ///     <item>
@@ -116,9 +117,6 @@ namespace WebSocketSharp.Net
 
     #region Internal Constructors
 
-    /// <summary>
-    /// Initializes a new instance of the <see cref="Cookie"/> class.
-    /// </summary>
     internal Cookie ()
     {
       init (String.Empty, String.Empty, String.Empty, String.Empty);
@@ -153,23 +151,23 @@ namespace WebSocketSharp.Net
     ///   <paramref name="name"/> is an empty string.
     ///   </para>
     ///   <para>
-    ///   - or -
+    ///   -or-
     ///   </para>
     ///   <para>
     ///   <paramref name="name"/> starts with a dollar sign.
     ///   </para>
     ///   <para>
-    ///   - or -
+    ///   -or-
     ///   </para>
     ///   <para>
     ///   <paramref name="name"/> contains an invalid character.
     ///   </para>
     ///   <para>
-    ///   - or -
+    ///   -or-
     ///   </para>
     ///   <para>
     ///   <paramref name="value"/> is a string not enclosed in double quotes
-    ///   that contains an invalid character.
+    ///   although it contains a reserved character.
     ///   </para>
     /// </exception>
     public Cookie (string name, string value)
@@ -206,23 +204,23 @@ namespace WebSocketSharp.Net
     ///   <paramref name="name"/> is an empty string.
     ///   </para>
     ///   <para>
-    ///   - or -
+    ///   -or-
     ///   </para>
     ///   <para>
     ///   <paramref name="name"/> starts with a dollar sign.
     ///   </para>
     ///   <para>
-    ///   - or -
+    ///   -or-
     ///   </para>
     ///   <para>
     ///   <paramref name="name"/> contains an invalid character.
     ///   </para>
     ///   <para>
-    ///   - or -
+    ///   -or-
     ///   </para>
     ///   <para>
     ///   <paramref name="value"/> is a string not enclosed in double quotes
-    ///   that contains an invalid character.
+    ///   although it contains a reserved character.
     ///   </para>
     /// </exception>
     public Cookie (string name, string value, string path)
@@ -263,23 +261,23 @@ namespace WebSocketSharp.Net
     ///   <paramref name="name"/> is an empty string.
     ///   </para>
     ///   <para>
-    ///   - or -
+    ///   -or-
     ///   </para>
     ///   <para>
     ///   <paramref name="name"/> starts with a dollar sign.
     ///   </para>
     ///   <para>
-    ///   - or -
+    ///   -or-
     ///   </para>
     ///   <para>
     ///   <paramref name="name"/> contains an invalid character.
     ///   </para>
     ///   <para>
-    ///   - or -
+    ///   -or-
     ///   </para>
     ///   <para>
     ///   <paramref name="value"/> is a string not enclosed in double quotes
-    ///   that contains an invalid character.
+    ///   although it contains a reserved character.
     ///   </para>
     /// </exception>
     public Cookie (string name, string value, string path, string domain)
@@ -292,11 +290,13 @@ namespace WebSocketSharp.Net
 
       if (name[0] == '$') {
         var msg = "It starts with a dollar sign.";
+
         throw new ArgumentException (msg, "name");
       }
 
       if (!name.IsToken ()) {
         var msg = "It contains an invalid character.";
+
         throw new ArgumentException (msg, "name");
       }
 
@@ -306,6 +306,7 @@ namespace WebSocketSharp.Net
       if (value.Contains (_reservedCharsForValue)) {
         if (!value.IsEnclosedIn ('"')) {
           var msg = "A string not enclosed in double quotes.";
+
           throw new ArgumentException (msg, "value");
         }
       }
@@ -333,6 +334,7 @@ namespace WebSocketSharp.Net
                       : _expires;
 
         var span = expires - DateTime.Now;
+
         return span > TimeSpan.Zero
                ? (int) span.TotalSeconds
                : 0;
@@ -447,7 +449,7 @@ namespace WebSocketSharp.Net
     ///   the cookie is valid for.
     ///   </para>
     ///   <para>
-    ///   An empty string if this attribute is not needed.
+    ///   An empty string if not necessary.
     ///   </para>
     /// </value>
     public string Domain {
@@ -490,7 +492,7 @@ namespace WebSocketSharp.Net
     ///   the cookie expires on.
     ///   </para>
     ///   <para>
-    ///   <see cref="DateTime.MinValue"/> if this attribute is not needed.
+    ///   <see cref="DateTime.MinValue"/> if not necessary.
     ///   </para>
     ///   <para>
     ///   The default value is <see cref="DateTime.MinValue"/>.
@@ -550,13 +552,13 @@ namespace WebSocketSharp.Net
     ///   The value specified for a set operation is an empty string.
     ///   </para>
     ///   <para>
-    ///   - or -
+    ///   -or-
     ///   </para>
     ///   <para>
     ///   The value specified for a set operation starts with a dollar sign.
     ///   </para>
     ///   <para>
-    ///   - or -
+    ///   -or-
     ///   </para>
     ///   <para>
     ///   The value specified for a set operation contains an invalid character.
@@ -576,11 +578,13 @@ namespace WebSocketSharp.Net
 
         if (value[0] == '$') {
           var msg = "It starts with a dollar sign.";
+
           throw new ArgumentException (msg, "value");
         }
 
         if (!value.IsToken ()) {
           var msg = "It contains an invalid character.";
+
           throw new ArgumentException (msg, "value");
         }
 
@@ -627,11 +631,12 @@ namespace WebSocketSharp.Net
 
       internal set {
         int[] ports;
+
         if (!tryCreatePorts (value, out ports))
           return;
 
-        _port = value;
         _ports = ports;
+        _port = value;
       }
     }
 
@@ -683,7 +688,7 @@ namespace WebSocketSharp.Net
     /// </value>
     /// <exception cref="ArgumentException">
     /// The value specified for a set operation is a string not enclosed in
-    /// double quotes that contains an invalid character.
+    /// double quotes although it contains a reserved character.
     /// </exception>
     public string Value {
       get {
@@ -697,6 +702,7 @@ namespace WebSocketSharp.Net
         if (value.Contains (_reservedCharsForValue)) {
           if (!value.IsEnclosedIn ('"')) {
             var msg = "A string not enclosed in double quotes.";
+
             throw new ArgumentException (msg, "value");
           }
         }
@@ -714,7 +720,10 @@ namespace WebSocketSharp.Net
     ///   management that the cookie conforms to.
     ///   </para>
     ///   <para>
-    ///   0 or 1. 0 if not present.
+    ///   0 or 1.
+    ///   </para>
+    ///   <para>
+    ///   0 if not present.
     ///   </para>
     ///   <para>
     ///   The default value is 0.
@@ -764,13 +773,14 @@ namespace WebSocketSharp.Net
       buff.AppendFormat ("{0}={1}", _name, _value);
 
       if (_expires != DateTime.MinValue) {
-        buff.AppendFormat (
-          "; Expires={0}",
-          _expires.ToUniversalTime ().ToString (
-            "ddd, dd'-'MMM'-'yyyy HH':'mm':'ss 'GMT'",
-            CultureInfo.CreateSpecificCulture ("en-US")
-          )
-        );
+        var expires = _expires
+                      .ToUniversalTime ()
+                      .ToString (
+                        "ddd, dd'-'MMM'-'yyyy HH':'mm':'ss 'GMT'",
+                        CultureInfo.CreateSpecificCulture ("en-US")
+                      );
+
+        buff.AppendFormat ("; Expires={0}", expires);
       }
 
       if (!_path.IsNullOrEmpty ())
@@ -813,11 +823,15 @@ namespace WebSocketSharp.Net
           buff.Append ("; Port");
       }
 
-      if (_comment != null)
-        buff.AppendFormat ("; Comment={0}", HttpUtility.UrlEncode (_comment));
+      if (_comment != null) {
+        var comment = HttpUtility.UrlEncode (_comment);
+
+        buff.AppendFormat ("; Comment={0}", comment);
+      }
 
       if (_commentUri != null) {
         var url = _commentUri.OriginalString;
+
         buff.AppendFormat (
           "; CommentURL={0}", !url.IsToken () ? url.Quote () : url
         );
@@ -842,8 +856,10 @@ namespace WebSocketSharp.Net
 
       for (var i = 0; i < len; i++) {
         var s = arr[i].Trim ();
+
         if (s.Length == 0) {
           res[i] = Int32.MinValue;
+
           continue;
         }
 
@@ -852,6 +868,7 @@ namespace WebSocketSharp.Net
       }
 
       result = res;
+
       return true;
     }
 
@@ -914,20 +931,15 @@ namespace WebSocketSharp.Net
       return buff.ToString ();
     }
 
-    /// <summary>
-    /// Returns a string that represents the current cookie instance.
-    /// </summary>
-    /// <returns>
-    /// A <see cref="string"/> that is suitable for the Set-Cookie response
-    /// header.
-    /// </returns>
     internal string ToResponseString ()
     {
-      return _name.Length == 0
-             ? String.Empty
-             : _version == 0
-               ? toResponseStringVersion0 ()
-               : toResponseStringVersion1 ();
+      if (_name.Length == 0)
+        return String.Empty;
+
+      if (_version == 0)
+        return toResponseStringVersion0 ();
+
+      return toResponseStringVersion1 ();
     }
 
     internal static bool TryCreate (
@@ -970,6 +982,7 @@ namespace WebSocketSharp.Net
     public override bool Equals (object comparand)
     {
       var cookie = comparand as Cookie;
+
       if (cookie == null)
         return false;
 
@@ -991,13 +1004,13 @@ namespace WebSocketSharp.Net
     /// </returns>
     public override int GetHashCode ()
     {
-      return hash (
-               StringComparer.InvariantCultureIgnoreCase.GetHashCode (_name),
-               _value.GetHashCode (),
-               _path.GetHashCode (),
-               StringComparer.InvariantCultureIgnoreCase.GetHashCode (_domain),
-               _version
-             );
+      var i = StringComparer.InvariantCultureIgnoreCase.GetHashCode (_name);
+      var j = _value.GetHashCode ();
+      var k = _path.GetHashCode ();
+      var l = StringComparer.InvariantCultureIgnoreCase.GetHashCode (_domain);
+      var m = _version;
+
+      return hash (i, j, k, l, m);
     }
 
     /// <summary>

@@ -4,7 +4,7 @@
  *
  * The MIT License
  *
- * Copyright (c) 2014-2017 sta.blockhead
+ * Copyright (c) 2014-2023 sta.blockhead
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -33,8 +33,8 @@ using System.Security.Principal;
 namespace WebSocketSharp.Net
 {
   /// <summary>
-  /// Holds the username and other parameters from
-  /// an HTTP Digest authentication attempt.
+  /// Holds the username and other parameters from an HTTP Digest
+  /// authentication attempt.
   /// </summary>
   public class HttpDigestIdentity : GenericIdentity
   {
@@ -172,13 +172,15 @@ namespace WebSocketSharp.Net
       string password, string realm, string method, string entity
     )
     {
-      var copied = new NameValueCollection (_parameters);
-      copied["password"] = password;
-      copied["realm"] = realm;
-      copied["method"] = method;
-      copied["entity"] = entity;
+      var parameters = new NameValueCollection (_parameters);
 
-      var expected = AuthenticationResponse.CreateRequestDigest (copied);
+      parameters["password"] = password;
+      parameters["realm"] = realm;
+      parameters["method"] = method;
+      parameters["entity"] = entity;
+
+      var expected = AuthenticationResponse.CreateRequestDigest (parameters);
+
       return _parameters["response"] == expected;
     }
 

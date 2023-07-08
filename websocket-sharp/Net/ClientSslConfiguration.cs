@@ -5,7 +5,7 @@
  * The MIT License
  *
  * Copyright (c) 2014 liryna
- * Copyright (c) 2014-2020 sta.blockhead
+ * Copyright (c) 2014-2023 sta.blockhead
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -61,10 +61,11 @@ namespace WebSocketSharp.Net
 
     /// <summary>
     /// Initializes a new instance of the <see cref="ClientSslConfiguration"/>
-    /// class with the specified target host server name.
+    /// class with the specified target host name.
     /// </summary>
     /// <param name="targetHost">
-    /// A <see cref="string"/> that specifies the target host server name.
+    /// A <see cref="string"/> that specifies the name of the server that
+    /// will share a secure connection with a client.
     /// </param>
     /// <exception cref="ArgumentNullException">
     /// <paramref name="targetHost"/> is <see langword="null"/>.
@@ -87,7 +88,7 @@ namespace WebSocketSharp.Net
 
     /// <summary>
     /// Initializes a new instance of the <see cref="ClientSslConfiguration"/>
-    /// class that stores the parameters copied from the specified configuration.
+    /// class copying from the specified configuration.
     /// </summary>
     /// <param name="configuration">
     /// A <see cref="ClientSslConfiguration"/> from which to copy.
@@ -136,15 +137,16 @@ namespace WebSocketSharp.Net
     }
 
     /// <summary>
-    /// Gets or sets the collection of client certificates from which to select
+    /// Gets or sets the collection of the certificates from which to select
     /// one to supply to the server.
     /// </summary>
     /// <value>
     ///   <para>
-    ///   A <see cref="X509CertificateCollection"/> or <see langword="null"/>.
+    ///   A <see cref="X509CertificateCollection"/> that contains
+    ///   the certificates from which to select.
     ///   </para>
     ///   <para>
-    ///   The collection contains client certificates from which to select.
+    ///   <see langword="null"/> if not present.
     ///   </para>
     ///   <para>
     ///   The default value is <see langword="null"/>.
@@ -169,8 +171,11 @@ namespace WebSocketSharp.Net
     /// </remarks>
     /// <value>
     ///   <para>
-    ///   A <see cref="LocalCertificateSelectionCallback"/> delegate that
-    ///   invokes the method called for selecting the certificate.
+    ///   A <see cref="LocalCertificateSelectionCallback"/> delegate.
+    ///   </para>
+    ///   <para>
+    ///   The delegate invokes the method called when a client selects
+    ///   the certificate.
     ///   </para>
     ///   <para>
     ///   The default value is a delegate that invokes a method that only
@@ -191,14 +196,14 @@ namespace WebSocketSharp.Net
     }
 
     /// <summary>
-    /// Gets or sets the protocols used for authentication.
+    /// Gets or sets the enabled versions of the SSL/TLS protocols.
     /// </summary>
     /// <value>
     ///   <para>
     ///   Any of the <see cref="SslProtocols"/> enum values.
     ///   </para>
     ///   <para>
-    ///   It represents the protocols used for authentication.
+    ///   It represents the enabled versions of the SSL/TLS protocols.
     ///   </para>
     ///   <para>
     ///   The default value is <see cref="SslProtocols.None"/>.
@@ -223,8 +228,11 @@ namespace WebSocketSharp.Net
     /// </remarks>
     /// <value>
     ///   <para>
-    ///   A <see cref="RemoteCertificateValidationCallback"/> delegate that
-    ///   invokes the method called for validating the certificate.
+    ///   A <see cref="RemoteCertificateValidationCallback"/> delegate.
+    ///   </para>
+    ///   <para>
+    ///   The delegate invokes the method called when a client validates
+    ///   the certificate.
     ///   </para>
     ///   <para>
     ///   The default value is a delegate that invokes a method that only
@@ -245,7 +253,7 @@ namespace WebSocketSharp.Net
     }
 
     /// <summary>
-    /// Gets or sets the target host server name.
+    /// Gets or sets the target host name.
     /// </summary>
     /// <value>
     /// A <see cref="string"/> that represents the name of the server that
