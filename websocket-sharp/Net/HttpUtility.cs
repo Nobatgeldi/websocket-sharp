@@ -8,7 +8,7 @@
  * The MIT License
  *
  * Copyright (c) 2005-2009 Novell, Inc. (http://www.novell.com)
- * Copyright (c) 2012-2019 sta.blockhead
+ * Copyright (c) 2012-2023 sta.blockhead
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -85,13 +85,16 @@ namespace WebSocketSharp.Net
 
     private static int getNumber (char c)
     {
-      return c >= '0' && c <= '9'
-             ? c - '0'
-             : c >= 'A' && c <= 'F'
-               ? c - 'A' + 10
-               : c >= 'a' && c <= 'f'
-                 ? c - 'a' + 10
-                 : -1;
+      if (c >= '0' && c <= '9')
+        return c - '0';
+
+      if (c >= 'A' && c <= 'F')
+        return c - 'A' + 10;
+
+      if (c >= 'a' && c <= 'f')
+        return c - 'a' + 10;
+
+      return -1;
     }
 
     private static int getNumber (byte[] bytes, int offset, int count)
@@ -99,12 +102,15 @@ namespace WebSocketSharp.Net
       var ret = 0;
 
       var end = offset + count - 1;
+
       for (var i = offset; i <= end; i++) {
-        var num = getNumber ((char) bytes[i]);
-        if (num == -1)
+        var c = (char) bytes[i];
+        var n = getNumber (c);
+
+        if (n == -1)
           return -1;
 
-        ret = (ret << 4) + num;
+        ret = (ret << 4) + n;
       }
 
       return ret;
@@ -115,12 +121,15 @@ namespace WebSocketSharp.Net
       var ret = 0;
 
       var end = offset + count - 1;
+
       for (var i = offset; i <= end; i++) {
-        var num = getNumber (s[i]);
-        if (num == -1)
+        var c = s[i];
+        var n = getNumber (c);
+
+        if (n == -1)
           return -1;
 
-        ret = (ret << 4) + num;
+        ret = (ret << 4) + n;
       }
 
       return ret;
@@ -144,12 +153,14 @@ namespace WebSocketSharp.Net
         if (state == 0) {
           if (c == '&') {
             reference.Append ('&');
+
             state = 1;
 
             continue;
           }
 
           buff.Append (c);
+
           continue;
         }
 
@@ -158,6 +169,7 @@ namespace WebSocketSharp.Net
 
           reference.Length = 0;
           reference.Append ('&');
+
           state = 1;
 
           continue;
@@ -187,6 +199,7 @@ namespace WebSocketSharp.Net
             var name = entity.Substring (1, entity.Length - 2);
 
             var entities = getEntities ();
+
             if (entities.ContainsKey (name))
               buff.Append (entities[name]);
             else
@@ -216,15 +229,18 @@ namespace WebSocketSharp.Net
 
           if (c == 'x') {
             state = reference.Length == 3 ? 4 : 2;
+
             continue;
           }
 
           if (!isNumeric (c)) {
             state = 2;
+
             continue;
           }
 
           num = num * 10 + (c - '0');
+
           continue;
         }
 
@@ -242,8 +258,10 @@ namespace WebSocketSharp.Net
           }
 
           var n = getNumber (c);
+
           if (n == -1) {
             state = 2;
+
             continue;
           }
 
@@ -285,19 +303,41 @@ namespace WebSocketSharp.Net
       var buff = new StringBuilder ();
 
       foreach (var c in s) {
-        buff.Append (
-          c == '"'
-          ? "&quot;"
-          : c == '&'
-            ? "&amp;"
-            : c == '<'
-              ? "&lt;"
-              : c == '>'
-                ? "&gt;"
-                : !minimal && c > 159
-                  ? String.Format ("&#{0};", (int) c)
-                  : c.ToString ()
-        );
+        if (c == '"') {
+          buff.Append ("&quot;");
+
+          continue;
+        }
+
+        if (c == '&') {
+          buff.Append ("&amp;");
+
+          continue;
+        }
+
+        if (c == '<') {
+          buff.Append ("&lt;");
+
+          continue;
+        }
+
+        if (c == '>') {
+          buff.Append ("&gt;");
+
+          continue;
+        }
+
+        if (c > 159) {
+          if (!minimal) {
+            var val = String.Format ("&#{0};", (int) c);
+
+            buff.Append (val);
+
+            continue;
+          }
+        }
+
+        buff.Append (c);
       }
 
       return buff.ToString ();
@@ -313,6 +353,7 @@ namespace WebSocketSharp.Net
     private static void initEntities ()
     {
       _entities = new Dictionary<string, char> ();
+
       _entities.Add ("nbsp", '\u00A0');
       _entities.Add ("iexcl", '\u00A1');
       _entities.Add ("cent", '\u00A2');
@@ -611,19 +652,22 @@ namespace WebSocketSharp.Net
     {
       using (var buff = new MemoryStream ()) {
         var end = offset + count - 1;
+
         for (var i = offset; i <= end; i++) {
           var b = bytes[i];
-
           var c = (char) b;
+
           if (c == '%') {
             if (i > end - 2)
               break;
 
             var num = getNumber (bytes, i + 1, 2);
+
             if (num == -1)
               break;
 
             buff.WriteByte ((byte) num);
+
             i += 2;
 
             continue;
@@ -631,6 +675,7 @@ namespace WebSocketSharp.Net
 
           if (c == '+') {
             buff.WriteByte ((byte) ' ');
+
             continue;
           }
 
@@ -638,6 +683,7 @@ namespace WebSocketSharp.Net
         }
 
         buff.Close ();
+
         return buff.ToArray ();
       }
     }
@@ -646,23 +692,28 @@ namespace WebSocketSharp.Net
     {
       if (b > 31 && b < 127) {
         var c = (char) b;
+
         if (c == ' ') {
           output.WriteByte ((byte) '+');
+
           return;
         }
 
         if (isNumeric (c)) {
           output.WriteByte (b);
+
           return;
         }
 
         if (isAlphabet (c)) {
           output.WriteByte (b);
+
           return;
         }
 
         if (isUnreserved (c)) {
           output.WriteByte (b);
+
           return;
         }
       }
@@ -681,10 +732,12 @@ namespace WebSocketSharp.Net
     {
       using (var buff = new MemoryStream ()) {
         var end = offset + count - 1;
+
         for (var i = offset; i <= end; i++)
           urlEncode (bytes[i], buff);
 
         buff.Close ();
+
         return buff.ToArray ();
       }
     }
@@ -776,18 +829,22 @@ namespace WebSocketSharp.Net
         return null;
 
       var compType = StringComparison.OrdinalIgnoreCase;
-      if (response.IndexOf (scheme.ToString (), compType) != 0)
+
+      if (!response.StartsWith (scheme.ToString (), compType))
         return null;
 
       var res = AuthenticationResponse.Parse (response);
+
       if (res == null)
         return null;
 
       var id = res.ToIdentity ();
+
       if (id == null)
         return null;
 
       NetworkCredential cred = null;
+
       try {
         cred = credentialsFinder (id);
       }
@@ -799,12 +856,14 @@ namespace WebSocketSharp.Net
 
       if (scheme == AuthenticationSchemes.Basic) {
         var basicId = (HttpBasicIdentity) id;
+
         return basicId.Password == cred.Password
                ? new GenericPrincipal (id, cred.Roles)
                : null;
       }
 
       var digestId = (HttpDigestIdentity) id;
+
       return digestId.IsValid (cred.Password, realm, method, null)
              ? new GenericPrincipal (id, cred.Roles)
              : null;
@@ -871,7 +930,9 @@ namespace WebSocketSharp.Net
       if (s.Length == 0)
         return;
 
-      output.Write (htmlEncode (s, true));
+      var encodedS = htmlEncode (s, true);
+
+      output.Write (encodedS);
     }
 
     public static string HtmlDecode (string s)
@@ -893,7 +954,9 @@ namespace WebSocketSharp.Net
       if (s.Length == 0)
         return;
 
-      output.Write (htmlDecode (s));
+      var decodedS = htmlDecode (s);
+
+      output.Write (decodedS);
     }
 
     public static string HtmlEncode (string s)
@@ -915,7 +978,9 @@ namespace WebSocketSharp.Net
       if (s.Length == 0)
         return;
 
-      output.Write (htmlEncode (s, false));
+      var encodedS = htmlEncode (s, false);
+
+      output.Write (encodedS);
     }
 
     public static string UrlDecode (string s)
@@ -929,11 +994,13 @@ namespace WebSocketSharp.Net
         throw new ArgumentNullException ("bytes");
 
       var len = bytes.Length;
-      return len > 0
-             ? (encoding ?? Encoding.UTF8).GetString (
-                 urlDecodeToBytes (bytes, 0, len)
-               )
-             : String.Empty;
+
+      if (len == 0)
+        return String.Empty;
+
+      var decodedBytes = urlDecodeToBytes (bytes, 0, len);
+
+      return (encoding ?? Encoding.UTF8).GetString (decodedBytes);
     }
 
     public static string UrlDecode (string s, Encoding encoding)
@@ -945,9 +1012,9 @@ namespace WebSocketSharp.Net
         return s;
 
       var bytes = Encoding.ASCII.GetBytes (s);
-      return (encoding ?? Encoding.UTF8).GetString (
-               urlDecodeToBytes (bytes, 0, bytes.Length)
-             );
+      var decodedBytes = urlDecodeToBytes (bytes, 0, bytes.Length);
+
+      return (encoding ?? Encoding.UTF8).GetString (decodedBytes);
     }
 
     public static string UrlDecode (
@@ -958,6 +1025,7 @@ namespace WebSocketSharp.Net
         throw new ArgumentNullException ("bytes");
 
       var len = bytes.Length;
+
       if (len == 0) {
         if (offset != 0)
           throw new ArgumentOutOfRangeException ("offset");
@@ -974,11 +1042,12 @@ namespace WebSocketSharp.Net
       if (count < 0 || count > len - offset)
         throw new ArgumentOutOfRangeException ("count");
 
-      return count > 0
-             ? (encoding ?? Encoding.UTF8).GetString (
-                 urlDecodeToBytes (bytes, offset, count)
-               )
-             : String.Empty;
+      if (count == 0)
+        return String.Empty;
+
+      var decodedBytes = urlDecodeToBytes (bytes, offset, count);
+
+      return (encoding ?? Encoding.UTF8).GetString (decodedBytes);
     }
 
     public static byte[] UrlDecodeToBytes (byte[] bytes)
@@ -987,6 +1056,7 @@ namespace WebSocketSharp.Net
         throw new ArgumentNullException ("bytes");
 
       var len = bytes.Length;
+
       return len > 0
              ? urlDecodeToBytes (bytes, 0, len)
              : bytes;
@@ -1001,6 +1071,7 @@ namespace WebSocketSharp.Net
         return new byte[0];
 
       var bytes = Encoding.ASCII.GetBytes (s);
+
       return urlDecodeToBytes (bytes, 0, bytes.Length);
     }
 
@@ -1010,6 +1081,7 @@ namespace WebSocketSharp.Net
         throw new ArgumentNullException ("bytes");
 
       var len = bytes.Length;
+
       if (len == 0) {
         if (offset != 0)
           throw new ArgumentOutOfRangeException ("offset");
@@ -1037,9 +1109,13 @@ namespace WebSocketSharp.Net
         throw new ArgumentNullException ("bytes");
 
       var len = bytes.Length;
-      return len > 0
-             ? Encoding.ASCII.GetString (urlEncodeToBytes (bytes, 0, len))
-             : String.Empty;
+
+      if (len == 0)
+        return String.Empty;
+
+      var encodedBytes = urlEncodeToBytes (bytes, 0, len);
+
+      return Encoding.ASCII.GetString (encodedBytes);
     }
 
     public static string UrlEncode (string s)
@@ -1053,16 +1129,19 @@ namespace WebSocketSharp.Net
         throw new ArgumentNullException ("s");
 
       var len = s.Length;
+
       if (len == 0)
         return s;
 
       if (encoding == null)
         encoding = Encoding.UTF8;
 
-      var bytes = new byte[encoding.GetMaxByteCount (len)];
-      var realLen = encoding.GetBytes (s, 0, len, bytes, 0);
+      var maxCnt = encoding.GetMaxByteCount (len);
+      var bytes = new byte[maxCnt];
+      var cnt = encoding.GetBytes (s, 0, len, bytes, 0);
+      var encodedBytes = urlEncodeToBytes (bytes, 0, cnt);
 
-      return Encoding.ASCII.GetString (urlEncodeToBytes (bytes, 0, realLen));
+      return Encoding.ASCII.GetString (encodedBytes);
     }
 
     public static string UrlEncode (byte[] bytes, int offset, int count)
@@ -1071,6 +1150,7 @@ namespace WebSocketSharp.Net
         throw new ArgumentNullException ("bytes");
 
       var len = bytes.Length;
+
       if (len == 0) {
         if (offset != 0)
           throw new ArgumentOutOfRangeException ("offset");
@@ -1087,11 +1167,12 @@ namespace WebSocketSharp.Net
       if (count < 0 || count > len - offset)
         throw new ArgumentOutOfRangeException ("count");
 
-      return count > 0
-             ? Encoding.ASCII.GetString (
-                 urlEncodeToBytes (bytes, offset, count)
-               )
-             : String.Empty;
+      if (count == 0)
+        return String.Empty;
+
+      var encodedBytes = urlEncodeToBytes (bytes, offset, count);
+
+      return Encoding.ASCII.GetString (encodedBytes);
     }
 
     public static byte[] UrlEncodeToBytes (byte[] bytes)
@@ -1100,6 +1181,7 @@ namespace WebSocketSharp.Net
         throw new ArgumentNullException ("bytes");
 
       var len = bytes.Length;
+
       return len > 0 ? urlEncodeToBytes (bytes, 0, len) : bytes;
     }
 
@@ -1117,6 +1199,7 @@ namespace WebSocketSharp.Net
         return new byte[0];
 
       var bytes = (encoding ?? Encoding.UTF8).GetBytes (s);
+
       return urlEncodeToBytes (bytes, 0, bytes.Length);
     }
 
@@ -1126,6 +1209,7 @@ namespace WebSocketSharp.Net
         throw new ArgumentNullException ("bytes");
 
       var len = bytes.Length;
+
       if (len == 0) {
         if (offset != 0)
           throw new ArgumentOutOfRangeException ("offset");

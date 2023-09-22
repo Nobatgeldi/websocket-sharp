@@ -87,6 +87,7 @@ namespace WebSocketSharp.Net
     internal HttpListenerResponse (HttpListenerContext context)
     {
       _context = context;
+
       _keepAlive = true;
       _statusCode = 200;
       _statusDescription = "OK";
@@ -207,14 +208,17 @@ namespace WebSocketSharp.Net
       }
     }
 
+    internal string ObjectName {
+      get {
+        return GetType ().ToString ();
+      }
+    }
+
     internal string StatusLine {
       get {
-        return String.Format (
-                 "HTTP/{0} {1} {2}\r\n",
-                 _version,
-                 _statusCode,
-                 _statusDescription
-               );
+        var fmt = "HTTP/{0} {1} {2}\r\n";
+
+        return String.Format (fmt, _version, _statusCode, _statusDescription);
       }
     }
 
@@ -250,13 +254,12 @@ namespace WebSocketSharp.Net
       }
 
       set {
-        if (_disposed) {
-          var name = GetType ().ToString ();
-          throw new ObjectDisposedException (name);
-        }
+        if (_disposed)
+          throw new ObjectDisposedException (ObjectName);
 
         if (_headersSent) {
           var msg = "The response is already being sent.";
+
           throw new InvalidOperationException (msg);
         }
 
@@ -295,18 +298,18 @@ namespace WebSocketSharp.Net
       }
 
       set {
-        if (_disposed) {
-          var name = GetType ().ToString ();
-          throw new ObjectDisposedException (name);
-        }
+        if (_disposed)
+          throw new ObjectDisposedException (ObjectName);
 
         if (_headersSent) {
           var msg = "The response is already being sent.";
+
           throw new InvalidOperationException (msg);
         }
 
         if (value < 0) {
           var msg = "Less than zero.";
+
           throw new ArgumentOutOfRangeException (msg, "value");
         }
 
@@ -357,28 +360,27 @@ namespace WebSocketSharp.Net
       }
 
       set {
-        if (_disposed) {
-          var name = GetType ().ToString ();
-          throw new ObjectDisposedException (name);
-        }
+        if (_disposed)
+          throw new ObjectDisposedException (ObjectName);
 
         if (_headersSent) {
           var msg = "The response is already being sent.";
+
           throw new InvalidOperationException (msg);
         }
 
         if (value == null) {
           _contentType = null;
+
           return;
         }
 
-        if (value.Length == 0) {
-          var msg = "An empty string.";
-          throw new ArgumentException (msg, "value");
-        }
+        if (value.Length == 0)
+          throw new ArgumentException ("An empty string.", "value");
 
         if (!isValidForContentType (value)) {
           var msg = "It contains an invalid character.";
+
           throw new ArgumentException (msg, "value");
         }
 
@@ -427,11 +429,13 @@ namespace WebSocketSharp.Net
       set {
         if (value == null) {
           _headers = null;
+
           return;
         }
 
         if (value.State != HttpHeaderType.Response) {
           var msg = "The value is not valid for a response.";
+
           throw new InvalidOperationException (msg);
         }
 
@@ -464,13 +468,12 @@ namespace WebSocketSharp.Net
       }
 
       set {
-        if (_disposed) {
-          var name = GetType ().ToString ();
-          throw new ObjectDisposedException (name);
-        }
+        if (_disposed)
+          throw new ObjectDisposedException (ObjectName);
 
         if (_headersSent) {
           var msg = "The response is already being sent.";
+
           throw new InvalidOperationException (msg);
         }
 
@@ -490,10 +493,8 @@ namespace WebSocketSharp.Net
     /// </exception>
     public Stream OutputStream {
       get {
-        if (_disposed) {
-          var name = GetType ().ToString ();
-          throw new ObjectDisposedException (name);
-        }
+        if (_disposed)
+          throw new ObjectDisposedException (ObjectName);
 
         if (_outputStream == null)
           _outputStream = _context.Connection.GetResponseStream ();
@@ -564,29 +565,29 @@ namespace WebSocketSharp.Net
       }
 
       set {
-        if (_disposed) {
-          var name = GetType ().ToString ();
-          throw new ObjectDisposedException (name);
-        }
+        if (_disposed)
+          throw new ObjectDisposedException (ObjectName);
 
         if (_headersSent) {
           var msg = "The response is already being sent.";
+
           throw new InvalidOperationException (msg);
         }
 
         if (value == null) {
           _redirectLocation = null;
+
           return;
         }
 
-        if (value.Length == 0) {
-          var msg = "An empty string.";
-          throw new ArgumentException (msg, "value");
-        }
+        if (value.Length == 0)
+          throw new ArgumentException ("An empty string.", "value");
 
         Uri uri;
+
         if (!Uri.TryCreate (value, UriKind.Absolute, out uri)) {
           var msg = "Not an absolute URL.";
+
           throw new ArgumentException (msg, "value");
         }
 
@@ -619,13 +620,12 @@ namespace WebSocketSharp.Net
       }
 
       set {
-        if (_disposed) {
-          var name = GetType ().ToString ();
-          throw new ObjectDisposedException (name);
-        }
+        if (_disposed)
+          throw new ObjectDisposedException (ObjectName);
 
         if (_headersSent) {
           var msg = "The response is already being sent.";
+
           throw new InvalidOperationException (msg);
         }
 
@@ -666,18 +666,18 @@ namespace WebSocketSharp.Net
       }
 
       set {
-        if (_disposed) {
-          var name = GetType ().ToString ();
-          throw new ObjectDisposedException (name);
-        }
+        if (_disposed)
+          throw new ObjectDisposedException (ObjectName);
 
         if (_headersSent) {
           var msg = "The response is already being sent.";
+
           throw new InvalidOperationException (msg);
         }
 
         if (value < 100 || value > 999) {
           var msg = "A value is not between 100 and 999 inclusive.";
+
           throw new System.Net.ProtocolViolationException (msg);
         }
 
@@ -723,13 +723,12 @@ namespace WebSocketSharp.Net
       }
 
       set {
-        if (_disposed) {
-          var name = GetType ().ToString ();
-          throw new ObjectDisposedException (name);
-        }
+        if (_disposed)
+          throw new ObjectDisposedException (ObjectName);
 
         if (_headersSent) {
           var msg = "The response is already being sent.";
+
           throw new InvalidOperationException (msg);
         }
 
@@ -738,11 +737,13 @@ namespace WebSocketSharp.Net
 
         if (value.Length == 0) {
           _statusDescription = _statusCode.GetStatusDescription ();
+
           return;
         }
 
         if (!isValidForStatusDescription (value)) {
           var msg = "It contains an invalid character.";
+
           throw new ArgumentException (msg, "value");
         }
 
@@ -774,6 +775,7 @@ namespace WebSocketSharp.Net
     private void close (bool force)
     {
       _disposed = true;
+
       _context.Connection.Close (force);
     }
 
@@ -965,10 +967,8 @@ namespace WebSocketSharp.Net
     /// </exception>
     public void Close (byte[] responseEntity, bool willBlock)
     {
-      if (_disposed) {
-        var name = GetType ().ToString ();
-        throw new ObjectDisposedException (name);
-      }
+      if (_disposed)
+        throw new ObjectDisposedException (ObjectName);
 
       if (responseEntity == null)
         throw new ArgumentNullException ("responseEntity");
@@ -977,6 +977,7 @@ namespace WebSocketSharp.Net
 
       if (len > Int32.MaxValue) {
         close (responseEntity, 1024, willBlock);
+
         return;
       }
 
@@ -1070,27 +1071,26 @@ namespace WebSocketSharp.Net
     /// </exception>
     public void Redirect (string url)
     {
-      if (_disposed) {
-        var name = GetType ().ToString ();
-        throw new ObjectDisposedException (name);
-      }
+      if (_disposed)
+        throw new ObjectDisposedException (ObjectName);
 
       if (_headersSent) {
         var msg = "The response is already being sent.";
+
         throw new InvalidOperationException (msg);
       }
 
       if (url == null)
         throw new ArgumentNullException ("url");
 
-      if (url.Length == 0) {
-        var msg = "An empty string.";
-        throw new ArgumentException (msg, "url");
-      }
+      if (url.Length == 0)
+        throw new ArgumentException ("An empty string.", "url");
 
       Uri uri;
+
       if (!Uri.TryCreate (url, UriKind.Absolute, out uri)) {
         var msg = "Not an absolute URL.";
+
         throw new ArgumentException (msg, "url");
       }
 
@@ -1119,6 +1119,7 @@ namespace WebSocketSharp.Net
 
       if (!canSetCookie (cookie)) {
         var msg = "It cannot be updated.";
+
         throw new ArgumentException (msg, "cookie");
       }
 
