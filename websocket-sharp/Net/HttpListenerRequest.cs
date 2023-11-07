@@ -8,7 +8,7 @@
  * The MIT License
  *
  * Copyright (c) 2005 Novell, Inc. (http://www.novell.com)
- * Copyright (c) 2012-2022 sta.blockhead
+ * Copyright (c) 2012-2023 sta.blockhead
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -113,11 +113,8 @@ namespace WebSocketSharp.Net
     /// </summary>
     /// <value>
     ///   <para>
-    ///   An array of <see cref="string"/> or <see langword="null"/>.
-    ///   </para>
-    ///   <para>
-    ///   The array contains the names of the media types specified in
-    ///   the value of the Accept header.
+    ///   An array of <see cref="string"/> that contains the names of
+    ///   the media types specified in the value of the Accept header.
     ///   </para>
     ///   <para>
     ///   <see langword="null"/> if the header is not present.
@@ -203,10 +200,8 @@ namespace WebSocketSharp.Net
     /// </summary>
     /// <value>
     ///   <para>
-    ///   A <see cref="string"/> or <see langword="null"/>.
-    ///   </para>
-    ///   <para>
-    ///   The string represents the value of the Content-Type header.
+    ///   A <see cref="string"/> that represents the value of the Content-Type
+    ///   header.
     ///   </para>
     ///   <para>
     ///   <see langword="null"/> if the header is not present.
@@ -219,7 +214,7 @@ namespace WebSocketSharp.Net
     }
 
     /// <summary>
-    /// Gets the cookies included in the request.
+    /// Gets the HTTP cookies included in the request.
     /// </summary>
     /// <value>
     ///   <para>
@@ -252,7 +247,7 @@ namespace WebSocketSharp.Net
     }
 
     /// <summary>
-    /// Gets the headers included in the request.
+    /// Gets the HTTP headers included in the request.
     /// </summary>
     /// <value>
     /// A <see cref="NameValueCollection"/> that contains the headers.
@@ -464,10 +459,7 @@ namespace WebSocketSharp.Net
     /// </summary>
     /// <value>
     ///   <para>
-    ///   A <see cref="Uri"/> or <see langword="null"/>.
-    ///   </para>
-    ///   <para>
-    ///   The Uri represents the URL parsed from the request.
+    ///   A <see cref="Uri"/> that represents the URL parsed from the request.
     ///   </para>
     ///   <para>
     ///   <see langword="null"/> if the URL cannot be parsed.
@@ -496,10 +488,7 @@ namespace WebSocketSharp.Net
     /// </summary>
     /// <value>
     ///   <para>
-    ///   A <see cref="Uri"/> or <see langword="null"/>.
-    ///   </para>
-    ///   <para>
-    ///   The Uri represents the value of the Referer header.
+    ///   A <see cref="Uri"/> that represents the value of the Referer header.
     ///   </para>
     ///   <para>
     ///   <see langword="null"/> if the header value is not available.
@@ -524,10 +513,8 @@ namespace WebSocketSharp.Net
     /// </summary>
     /// <value>
     ///   <para>
-    ///   A <see cref="string"/> or <see langword="null"/>.
-    ///   </para>
-    ///   <para>
-    ///   The string represents the value of the User-Agent header.
+    ///   A <see cref="string"/> that represents the value of the User-Agent
+    ///   header.
     ///   </para>
     ///   <para>
     ///   <see langword="null"/> if the header is not present.
@@ -574,11 +561,9 @@ namespace WebSocketSharp.Net
     /// </summary>
     /// <value>
     ///   <para>
-    ///   An array of <see cref="string"/> or <see langword="null"/>.
-    ///   </para>
-    ///   <para>
-    ///   The array contains the names of the natural languages specified in
-    ///   the value of the Accept-Language header.
+    ///   An array of <see cref="string"/> that contains the names of the
+    ///   natural languages specified in the value of the Accept-Language
+    ///   header.
     ///   </para>
     ///   <para>
     ///   <see langword="null"/> if the header is not present.
@@ -885,7 +870,8 @@ namespace WebSocketSharp.Net
     /// This method is not supported.
     /// </exception>
     public IAsyncResult BeginGetClientCertificate (
-      AsyncCallback requestCallback, object state
+      AsyncCallback requestCallback,
+      object state
     )
     {
       throw new NotSupportedException ();

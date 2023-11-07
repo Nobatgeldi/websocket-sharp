@@ -8,7 +8,7 @@
  * The MIT License
  *
  * Copyright (c) 2005 Novell, Inc. (http://www.novell.com)
- * Copyright (c) 2012-2021 sta.blockhead
+ * Copyright (c) 2012-2023 sta.blockhead
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -63,22 +63,32 @@ namespace WebSocketSharp.Net
   {
     #region Private Fields
 
-    private bool                _closeConnection;
-    private Encoding            _contentEncoding;
-    private long                _contentLength;
-    private string              _contentType;
-    private HttpListenerContext _context;
-    private CookieCollection    _cookies;
-    private bool                _disposed;
-    private WebHeaderCollection _headers;
-    private bool                _headersSent;
-    private bool                _keepAlive;
-    private ResponseStream      _outputStream;
-    private Uri                 _redirectLocation;
-    private bool                _sendChunked;
-    private int                 _statusCode;
-    private string              _statusDescription;
-    private Version             _version;
+    private bool                   _closeConnection;
+    private Encoding               _contentEncoding;
+    private long                   _contentLength;
+    private string                 _contentType;
+    private HttpListenerContext    _context;
+    private CookieCollection       _cookies;
+    private static readonly string _defaultProductName;
+    private bool                   _disposed;
+    private WebHeaderCollection    _headers;
+    private bool                   _headersSent;
+    private bool                   _keepAlive;
+    private ResponseStream         _outputStream;
+    private Uri                    _redirectLocation;
+    private bool                   _sendChunked;
+    private int                    _statusCode;
+    private string                 _statusDescription;
+    private Version                _version;
+
+    #endregion
+
+    #region Static Constructor
+
+    static HttpListenerResponse ()
+    {
+      _defaultProductName = "websocket-sharp/1.0";
+    }
 
     #endregion
 
@@ -116,33 +126,27 @@ namespace WebSocketSharp.Net
           headers.Add (_headers);
 
         if (_contentType != null) {
-          headers.InternalSet (
-            "Content-Type",
-            createContentTypeHeaderText (_contentType, _contentEncoding),
-            true
-          );
+          var val = createContentTypeHeaderText (_contentType, _contentEncoding);
+
+          headers.InternalSet ("Content-Type", val, true);
         }
 
         if (headers["Server"] == null)
-          headers.InternalSet ("Server", "websocket-sharp/1.0", true);
+          headers.InternalSet ("Server", _defaultProductName, true);
 
         if (headers["Date"] == null) {
-          headers.InternalSet (
-            "Date",
-            DateTime.UtcNow.ToString ("r", CultureInfo.InvariantCulture),
-            true
-          );
+          var val = DateTime.UtcNow.ToString ("r", CultureInfo.InvariantCulture);
+
+          headers.InternalSet ("Date", val, true);
         }
 
         if (_sendChunked) {
           headers.InternalSet ("Transfer-Encoding", "chunked", true);
         }
         else {
-          headers.InternalSet (
-            "Content-Length",
-            _contentLength.ToString (CultureInfo.InvariantCulture),
-            true
-          );
+          var val = _contentLength.ToString (CultureInfo.InvariantCulture);
+
+          headers.InternalSet ("Content-Length", val, true);
         }
 
         /*
@@ -155,8 +159,11 @@ namespace WebSocketSharp.Net
          * - 500 Internal Server Error
          * - 503 Service Unavailable
          */
+
+        var reuses = _context.Connection.Reuses;
         var closeConn = !_context.Request.KeepAlive
                         || !_keepAlive
+                        || reuses >= 100
                         || _statusCode == 400
                         || _statusCode == 408
                         || _statusCode == 411
@@ -165,20 +172,15 @@ namespace WebSocketSharp.Net
                         || _statusCode == 500
                         || _statusCode == 503;
 
-        var reuses = _context.Connection.Reuses;
-
-        if (closeConn || reuses >= 100) {
+        if (closeConn) {
           headers.InternalSet ("Connection", "close", true);
         }
         else {
-          headers.InternalSet (
-            "Keep-Alive",
-            String.Format ("timeout=15,max={0}", 100 - reuses),
-            true
-          );
+          var fmt = "timeout=15,max={0}";
+          var max = 100 - reuses;
+          var val = String.Format (fmt, max);
 
-          if (_context.Request.ProtocolVersion < HttpVersion.Version11)
-            headers.InternalSet ("Connection", "keep-alive", true);
+          headers.InternalSet ("Keep-Alive", val, true);
         }
 
         if (_redirectLocation != null)
@@ -186,11 +188,9 @@ namespace WebSocketSharp.Net
 
         if (_cookies != null) {
           foreach (var cookie in _cookies) {
-            headers.InternalSet (
-              "Set-Cookie",
-              cookie.ToResponseString (),
-              true
-            );
+            var val = cookie.ToResponseString ();
+
+            headers.InternalSet ("Set-Cookie", val, true);
           }
         }
 
@@ -389,7 +389,7 @@ namespace WebSocketSharp.Net
     }
 
     /// <summary>
-    /// Gets or sets the collection of cookies sent with the response.
+    /// Gets or sets the collection of the HTTP cookies sent with the response.
     /// </summary>
     /// <value>
     /// A <see cref="CookieCollection"/> that contains the cookies sent with
@@ -757,14 +757,14 @@ namespace WebSocketSharp.Net
 
     private bool canSetCookie (Cookie cookie)
     {
-      var found = findCookie (cookie).ToList ();
+      var res = findCookie (cookie).ToList ();
 
-      if (found.Count == 0)
+      if (res.Count == 0)
         return true;
 
       var ver = cookie.Version;
 
-      foreach (var c in found) {
+      foreach (var c in res) {
         if (c.Version == ver)
           return true;
       }
@@ -781,16 +781,14 @@ namespace WebSocketSharp.Net
 
     private void close (byte[] responseEntity, int bufferLength, bool willBlock)
     {
-      var stream = OutputStream;
-
       if (willBlock) {
-        stream.WriteBytes (responseEntity, bufferLength);
+        OutputStream.WriteBytes (responseEntity, bufferLength);
         close (false);
 
         return;
       }
 
-      stream.WriteBytesAsync (
+      OutputStream.WriteBytesAsync (
         responseEntity,
         bufferLength,
         () => close (false),
@@ -802,13 +800,15 @@ namespace WebSocketSharp.Net
       string value, Encoding encoding
     )
     {
-      if (value.IndexOf ("charset=", StringComparison.Ordinal) > -1)
+      if (value.Contains ("charset="))
         return value;
 
       if (encoding == null)
         return value;
 
-      return String.Format ("{0}; charset={1}", value, encoding.WebName);
+      var fmt = "{0}; charset={1}";
+
+      return String.Format (fmt, value, encoding.WebName);
     }
 
     private IEnumerable<Cookie> findCookie (Cookie cookie)
@@ -867,7 +867,7 @@ namespace WebSocketSharp.Net
     }
 
     /// <summary>
-    /// Appends the specified cookie to the cookies sent with the response.
+    /// Appends an HTTP cookie to the cookies sent with the response.
     /// </summary>
     /// <param name="cookie">
     /// A <see cref="Cookie"/> to append.
@@ -1100,7 +1100,7 @@ namespace WebSocketSharp.Net
     }
 
     /// <summary>
-    /// Adds or updates a cookie in the cookies sent with the response.
+    /// Adds or updates an HTTP cookie in the cookies sent with the response.
     /// </summary>
     /// <param name="cookie">
     /// A <see cref="Cookie"/> to set.
