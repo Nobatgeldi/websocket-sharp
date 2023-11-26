@@ -8,7 +8,7 @@
  * The MIT License
  *
  * Copyright (c) 2005 Novell, Inc. (http://www.novell.com)
- * Copyright (c) 2012-2022 sta.blockhead
+ * Copyright (c) 2012-2023 sta.blockhead
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -85,6 +85,12 @@ namespace WebSocketSharp.Net
     internal byte[] InitialBuffer {
       get {
         return _initialBuffer;
+      }
+    }
+
+    internal string ObjectName {
+      get {
+        return GetType ().ToString ();
       }
     }
 
@@ -171,14 +177,15 @@ namespace WebSocketSharp.Net
     #region Public Methods
 
     public override IAsyncResult BeginRead (
-      byte[] buffer, int offset, int count, AsyncCallback callback, object state
+      byte[] buffer,
+      int offset,
+      int count,
+      AsyncCallback callback,
+      object state
     )
     {
-      if (_disposed) {
-        var name = GetType ().ToString ();
-
-        throw new ObjectDisposedException (name);
-      }
+      if (_disposed)
+        throw new ObjectDisposedException (ObjectName);
 
       if (buffer == null)
         throw new ArgumentNullException ("buffer");
@@ -198,7 +205,7 @@ namespace WebSocketSharp.Net
       var len = buffer.Length;
 
       if (offset + count > len) {
-        var msg = "The sum of 'offset' and 'count' is greater than the length of 'buffer'.";
+        var msg = "The sum of offset and count is greater than the length of buffer.";
 
         throw new ArgumentException (msg);
       }
@@ -228,7 +235,11 @@ namespace WebSocketSharp.Net
     }
 
     public override IAsyncResult BeginWrite (
-      byte[] buffer, int offset, int count, AsyncCallback callback, object state
+      byte[] buffer,
+      int offset,
+      int count,
+      AsyncCallback callback,
+      object state
     )
     {
       throw new NotSupportedException ();
@@ -241,11 +252,8 @@ namespace WebSocketSharp.Net
 
     public override int EndRead (IAsyncResult asyncResult)
     {
-      if (_disposed) {
-        var name = GetType ().ToString ();
-
-        throw new ObjectDisposedException (name);
-      }
+      if (_disposed)
+        throw new ObjectDisposedException (ObjectName);
 
       if (asyncResult == null)
         throw new ArgumentNullException ("asyncResult");
@@ -278,11 +286,8 @@ namespace WebSocketSharp.Net
 
     public override int Read (byte[] buffer, int offset, int count)
     {
-      if (_disposed) {
-        var name = GetType ().ToString ();
-
-        throw new ObjectDisposedException (name);
-      }
+      if (_disposed)
+        throw new ObjectDisposedException (ObjectName);
 
       if (buffer == null)
         throw new ArgumentNullException ("buffer");
@@ -302,7 +307,7 @@ namespace WebSocketSharp.Net
       var len = buffer.Length;
 
       if (offset + count > len) {
-        var msg = "The sum of 'offset' and 'count' is greater than the length of 'buffer'.";
+        var msg = "The sum of offset and count is greater than the length of buffer.";
 
         throw new ArgumentException (msg);
       }

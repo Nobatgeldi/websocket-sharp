@@ -8,7 +8,7 @@
  * The MIT License
  *
  * Copyright (c) 2005-2009 Novell, Inc. (http://www.novell.com)
- * Copyright (c) 2018-2022 sta.blockhead
+ * Copyright (c) 2018-2023 sta.blockhead
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -124,13 +124,17 @@ namespace WebSocketSharp.Net
 
     public override string ToString ()
     {
+      if (Count == 0)
+        return String.Empty;
+
       var buff = new StringBuilder ();
 
-      foreach (var key in AllKeys)
-        buff.AppendFormat ("{0}={1}&", key, this[key]);
+      var fmt = "{0}={1}&";
 
-      if (buff.Length > 0)
-        buff.Length--;
+      foreach (var key in AllKeys)
+        buff.AppendFormat (fmt, key, this[key]);
+
+      buff.Length--;
 
       return buff.ToString ();
     }

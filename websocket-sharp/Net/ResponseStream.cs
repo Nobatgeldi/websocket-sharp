@@ -8,7 +8,7 @@
  * The MIT License
  *
  * Copyright (c) 2005 Novell, Inc. (http://www.novell.com)
- * Copyright (c) 2012-2020 sta.blockhead
+ * Copyright (c) 2012-2023 sta.blockhead
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -97,6 +97,16 @@ namespace WebSocketSharp.Net
 
     #endregion
 
+    #region Internal Properties
+
+    internal string ObjectName {
+      get {
+        return GetType ().ToString ();
+      }
+    }
+
+    #endregion
+
     #region Public Properties
 
     public override bool CanRead {
@@ -176,12 +186,15 @@ namespace WebSocketSharp.Net
           }
         }
         else if (len > 0) {
-          _writeBody (_bodyBuffer.GetBuffer (), 0, (int) len);
+          var buff = _bodyBuffer.GetBuffer ();
+
+          _writeBody (buff, 0, (int) len);
         }
       }
 
       if (!closing) {
         _bodyBuffer = new MemoryStream ();
+
         return;
       }
 
@@ -198,24 +211,28 @@ namespace WebSocketSharp.Net
           return false;
       }
 
-      var statusLine = _response.StatusLine;
       var headers = _response.FullHeaders;
 
-      var buff = new MemoryStream ();
+      var stream = new MemoryStream ();
       var enc = Encoding.UTF8;
 
-      using (var writer = new StreamWriter (buff, enc, 256)) {
-        writer.Write (statusLine);
-        writer.Write (headers.ToStringMultiValue (true));
+      using (var writer = new StreamWriter (stream, enc, 256)) {
+        writer.Write (_response.StatusLine);
+
+        var s = headers.ToStringMultiValue (true);
+
+        writer.Write (s);
         writer.Flush ();
 
         var start = enc.GetPreamble ().Length;
-        var len = buff.Length - start;
+        var len = stream.Length - start;
 
         if (len > _maxHeadersLength)
           return false;
 
-        _write (buff.GetBuffer (), start, (int) len);
+        var buff = stream.GetBuffer ();
+
+        _write (buff, start, (int) len);
       }
 
       _response.CloseConnection = headers["Connection"] == "close";
@@ -223,16 +240,17 @@ namespace WebSocketSharp.Net
       return true;
     }
 
-    private static byte[] getChunkSizeBytes (int size)
+    private static byte[] getChunkSizeStringAsBytes (int size)
     {
-      var chunkSize = String.Format ("{0:x}\r\n", size);
+      var fmt = "{0:x}\r\n";
+      var s = String.Format (fmt, size);
 
-      return Encoding.ASCII.GetBytes (chunkSize);
+      return Encoding.ASCII.GetBytes (s);
     }
 
     private void writeChunked (byte[] buffer, int offset, int count)
     {
-      var size = getChunkSizeBytes (count);
+      var size = getChunkSizeStringAsBytes (count);
 
       _innerStream.Write (size, 0, size.Length);
       _innerStream.Write (buffer, offset, count);
@@ -240,7 +258,9 @@ namespace WebSocketSharp.Net
     }
 
     private void writeChunkedWithoutThrowingException (
-      byte[] buffer, int offset, int count
+      byte[] buffer,
+      int offset,
+      int count
     )
     {
       try {
@@ -251,7 +271,9 @@ namespace WebSocketSharp.Net
     }
 
     private void writeWithoutThrowingException (
-      byte[] buffer, int offset, int count
+      byte[] buffer,
+      int offset,
+      int count
     )
     {
       try {
@@ -324,11 +346,8 @@ namespace WebSocketSharp.Net
       object state
     )
     {
-      if (_disposed) {
-        var name = GetType ().ToString ();
-
-        throw new ObjectDisposedException (name);
-      }
+      if (_disposed)
+        throw new ObjectDisposedException (ObjectName);
 
       return _bodyBuffer.BeginWrite (buffer, offset, count, callback, state);
     }
@@ -350,11 +369,8 @@ namespace WebSocketSharp.Net
 
     public override void EndWrite (IAsyncResult asyncResult)
     {
-      if (_disposed) {
-        var name = GetType ().ToString ();
-
-        throw new ObjectDisposedException (name);
-      }
+      if (_disposed)
+        throw new ObjectDisposedException (ObjectName);
 
       _bodyBuffer.EndWrite (asyncResult);
     }
@@ -389,11 +405,8 @@ namespace WebSocketSharp.Net
 
     public override void Write (byte[] buffer, int offset, int count)
     {
-      if (_disposed) {
-        var name = GetType ().ToString ();
-
-        throw new ObjectDisposedException (name);
-      }
+      if (_disposed)
+        throw new ObjectDisposedException (ObjectName);
 
       _bodyBuffer.Write (buffer, offset, count);
     }

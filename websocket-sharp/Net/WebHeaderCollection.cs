@@ -9,7 +9,7 @@
  *
  * Copyright (c) 2003 Ximian, Inc. (http://www.ximian.com)
  * Copyright (c) 2007 Novell, Inc. (http://www.novell.com)
- * Copyright (c) 2012-2020 sta.blockhead
+ * Copyright (c) 2012-2023 sta.blockhead
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -580,7 +580,8 @@ namespace WebSocketSharp.Net
     /// <paramref name="serializationInfo"/>.
     /// </exception>
     protected WebHeaderCollection (
-      SerializationInfo serializationInfo, StreamingContext streamingContext
+      SerializationInfo serializationInfo,
+      StreamingContext streamingContext
     )
     {
       if (serializationInfo == null)
@@ -865,10 +866,10 @@ namespace WebSocketSharp.Net
 
     private static HttpHeaderInfo getHeaderInfo (string name)
     {
-      var comparison = StringComparison.InvariantCultureIgnoreCase;
+      var compType = StringComparison.InvariantCultureIgnoreCase;
 
       foreach (var headerInfo in _headers.Values) {
-        if (headerInfo.HeaderName.Equals (name, comparison))
+        if (headerInfo.HeaderName.Equals (name, compType))
           return headerInfo;
       }
 
@@ -987,17 +988,19 @@ namespace WebSocketSharp.Net
 
       var buff = new StringBuilder ();
 
+      var fmt = "{0}: {1}\r\n";
+
       for (var i = 0; i < cnt; i++) {
         var name = GetKey (i);
 
         if (isMultiValue (name, response)) {
           foreach (var val in GetValues (i))
-            buff.AppendFormat ("{0}: {1}\r\n", name, val);
+            buff.AppendFormat (fmt, name, val);
 
           continue;
         }
 
-        buff.AppendFormat ("{0}: {1}\r\n", name, Get (i));
+        buff.AppendFormat (fmt, name, Get (i));
       }
 
       buff.Append ("\r\n");
@@ -1319,6 +1322,7 @@ namespace WebSocketSharp.Net
     public override void Clear ()
     {
       base.Clear ();
+
       _state = HttpHeaderType.Unspecified;
     }
 
@@ -1461,7 +1465,8 @@ namespace WebSocketSharp.Net
       )
     ]
     public override void GetObjectData (
-      SerializationInfo serializationInfo, StreamingContext streamingContext
+      SerializationInfo serializationInfo,
+      StreamingContext streamingContext
     )
     {
       if (serializationInfo == null)
@@ -1826,7 +1831,9 @@ namespace WebSocketSharp.Net
     /// </returns>
     public byte[] ToByteArray ()
     {
-      return Encoding.UTF8.GetBytes (ToString ());
+      var s = ToString ();
+
+      return Encoding.UTF8.GetBytes (s);
     }
 
     /// <summary>
@@ -1844,8 +1851,10 @@ namespace WebSocketSharp.Net
 
       var buff = new StringBuilder ();
 
+      var fmt = "{0}: {1}\r\n";
+
       for (var i = 0; i < cnt; i++)
-        buff.AppendFormat ("{0}: {1}\r\n", GetKey (i), Get (i));
+        buff.AppendFormat (fmt, GetKey (i), Get (i));
 
       buff.Append ("\r\n");
 
@@ -1878,7 +1887,8 @@ namespace WebSocketSharp.Net
       )
     ]
     void ISerializable.GetObjectData (
-      SerializationInfo serializationInfo, StreamingContext streamingContext
+      SerializationInfo serializationInfo,
+      StreamingContext streamingContext
     )
     {
       GetObjectData (serializationInfo, streamingContext);
