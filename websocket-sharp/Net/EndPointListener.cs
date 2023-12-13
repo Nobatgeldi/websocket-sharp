@@ -8,7 +8,7 @@
  * The MIT License
  *
  * Copyright (c) 2005 Novell, Inc. (http://www.novell.com)
- * Copyright (c) 2012-2020 sta.blockhead
+ * Copyright (c) 2012-2023 sta.blockhead
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -171,7 +171,8 @@ namespace WebSocketSharp.Net
     #region Private Methods
 
     private static void addSpecial (
-      List<HttpListenerPrefix> prefixes, HttpListenerPrefix prefix
+      List<HttpListenerPrefix> prefixes,
+      HttpListenerPrefix prefix
     )
     {
       var path = prefix.Path;
@@ -199,9 +200,7 @@ namespace WebSocketSharp.Net
 
         conns = new HttpConnection[cnt];
 
-        var vals = _connections.Values;
-        vals.CopyTo (conns, 0);
-
+        _connections.Values.CopyTo (conns, 0);
         _connections.Clear ();
       }
 
@@ -214,13 +213,16 @@ namespace WebSocketSharp.Net
       var rsa = new RSACryptoServiceProvider ();
 
       var key = File.ReadAllBytes (path);
+
       rsa.ImportCspBlob (key);
 
       return rsa;
     }
 
     private static X509Certificate2 getCertificate (
-      int port, string folderPath, X509Certificate2 defaultCertificate
+      int port,
+      string folderPath,
+      X509Certificate2 defaultCertificate
     )
     {
       if (folderPath == null || folderPath.Length == 0)
@@ -230,17 +232,20 @@ namespace WebSocketSharp.Net
         var cer = Path.Combine (folderPath, String.Format ("{0}.cer", port));
         var key = Path.Combine (folderPath, String.Format ("{0}.key", port));
 
-        if (File.Exists (cer) && File.Exists (key)) {
-          var cert = new X509Certificate2 (cer);
-          cert.PrivateKey = createRSAFromFile (key);
+        var exists = File.Exists (cer) && File.Exists (key);
 
-          return cert;
-        }
+        if (!exists)
+          return defaultCertificate;
+
+        var cert = new X509Certificate2 (cer);
+
+        cert.PrivateKey = createRSAFromFile (key);
+
+        return cert;
       }
       catch {
+        return defaultCertificate;
       }
-
-      return defaultCertificate;
     }
 
     private void leaveIfNoPrefix ()
@@ -296,7 +301,8 @@ namespace WebSocketSharp.Net
     }
 
     private static void processAccepted (
-      Socket socket, EndPointListener listener
+      Socket socket,
+      EndPointListener listener
     )
     {
       HttpConnection conn = null;
@@ -319,7 +325,8 @@ namespace WebSocketSharp.Net
     }
 
     private static bool removeSpecial (
-      List<HttpListenerPrefix> prefixes, HttpListenerPrefix prefix
+      List<HttpListenerPrefix> prefixes,
+      HttpListenerPrefix prefix
     )
     {
       var path = prefix.Path;
@@ -337,7 +344,8 @@ namespace WebSocketSharp.Net
     }
 
     private static HttpListener searchHttpListenerFromSpecial (
-      string path, List<HttpListenerPrefix> prefixes
+      string path,
+      List<HttpListenerPrefix> prefixes
     )
     {
       if (prefixes == null)
@@ -354,10 +362,13 @@ namespace WebSocketSharp.Net
         if (len < bestLen)
           continue;
 
-        if (path.StartsWith (prefPath, StringComparison.Ordinal)) {
-          bestLen = len;
-          ret = pref.Listener;
-        }
+        var match = path.StartsWith (prefPath, StringComparison.Ordinal);
+
+        if (!match)
+          continue;
+
+        bestLen = len;
+        ret = pref.Listener;
       }
 
       return ret;
@@ -423,10 +434,13 @@ namespace WebSocketSharp.Net
           if (len < bestLen)
             continue;
 
-          if (path.StartsWith (prefPath, StringComparison.Ordinal)) {
-            bestLen = len;
-            listener = pref.Listener;
-          }
+          var match = path.StartsWith (prefPath, StringComparison.Ordinal);
+
+          if (!match)
+            continue;
+
+          bestLen = len;
+          listener = pref.Listener;
         }
 
         if (bestLen != -1)
@@ -461,7 +475,8 @@ namespace WebSocketSharp.Net
           addSpecial (future, prefix);
         }
         while (
-          Interlocked.CompareExchange (ref _unhandled, future, current) != current
+          Interlocked.CompareExchange (ref _unhandled, future, current)
+          != current
         );
 
         return;
@@ -477,7 +492,8 @@ namespace WebSocketSharp.Net
           addSpecial (future, prefix);
         }
         while (
-          Interlocked.CompareExchange (ref _all, future, current) != current
+          Interlocked.CompareExchange (ref _all, future, current)
+          != current
         );
 
         return;
@@ -485,13 +501,13 @@ namespace WebSocketSharp.Net
 
       do {
         current = _prefixes;
+
         var idx = current.IndexOf (prefix);
 
         if (idx > -1) {
           if (current[idx].Listener != prefix.Listener) {
-            var msg = String.Format (
-                        "There is another listener for {0}.", prefix
-                      );
+            var fmt = "There is another listener for {0}.";
+            var msg = String.Format (fmt, prefix);
 
             throw new HttpListenerException (87, msg);
           }
@@ -500,10 +516,12 @@ namespace WebSocketSharp.Net
         }
 
         future = new List<HttpListenerPrefix> (current);
+
         future.Add (prefix);
       }
       while (
-        Interlocked.CompareExchange (ref _prefixes, future, current) != current
+        Interlocked.CompareExchange (ref _prefixes, future, current)
+        != current
       );
     }
 
@@ -532,7 +550,8 @@ namespace WebSocketSharp.Net
             break;
         }
         while (
-          Interlocked.CompareExchange (ref _unhandled, future, current) != current
+          Interlocked.CompareExchange (ref _unhandled, future, current)
+          != current
         );
 
         leaveIfNoPrefix ();
@@ -553,7 +572,8 @@ namespace WebSocketSharp.Net
             break;
         }
         while (
-          Interlocked.CompareExchange (ref _all, future, current) != current
+          Interlocked.CompareExchange (ref _all, future, current)
+          != current
         );
 
         leaveIfNoPrefix ();
@@ -568,10 +588,12 @@ namespace WebSocketSharp.Net
           break;
 
         future = new List<HttpListenerPrefix> (current);
+
         future.Remove (prefix);
       }
       while (
-        Interlocked.CompareExchange (ref _prefixes, future, current) != current
+        Interlocked.CompareExchange (ref _prefixes, future, current)
+        != current
       );
 
       leaveIfNoPrefix ();
