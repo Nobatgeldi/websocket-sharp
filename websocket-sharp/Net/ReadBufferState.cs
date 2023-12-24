@@ -8,7 +8,7 @@
  * The MIT License
  *
  * Copyright (c) 2005 Novell, Inc. (http://www.novell.com)
- * Copyright (c) 2014-2021 sta.blockhead
+ * Copyright (c) 2014-2023 sta.blockhead
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -56,7 +56,10 @@ namespace WebSocketSharp.Net
     #region Public Constructors
 
     public ReadBufferState (
-      byte[] buffer, int offset, int count, HttpStreamAsyncResult asyncResult
+      byte[] buffer,
+      int offset,
+      int count,
+      HttpStreamAsyncResult asyncResult
     )
     {
       _buffer = buffer;

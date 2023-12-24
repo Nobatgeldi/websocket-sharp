@@ -8,7 +8,7 @@
  * The MIT License
  *
  * Copyright (c) 2005 Novell, Inc. (http://www.novell.com)
- * Copyright (c) 2012-2022 sta.blockhead
+ * Copyright (c) 2012-2023 sta.blockhead
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -124,6 +124,7 @@ namespace WebSocketSharp.Net
         var nread = base.EndRead (asyncResult);
 
         _decoder.Write (ares.Buffer, ares.Offset, nread);
+
         nread = _decoder.Read (rstate.Buffer, rstate.Offset, rstate.Count);
 
         rstate.Offset += nread;
@@ -133,6 +134,7 @@ namespace WebSocketSharp.Net
           _noMoreData = !_decoder.WantsMore && nread == 0;
 
           ares.Count = rstate.InitialCount - rstate.Count;
+
           ares.Complete ();
 
           return;
@@ -142,6 +144,7 @@ namespace WebSocketSharp.Net
       }
       catch (Exception ex) {
         _context.ErrorMessage = "I/O operation aborted";
+
         _context.SendError ();
 
         ares.Complete (ex);
@@ -153,14 +156,15 @@ namespace WebSocketSharp.Net
     #region Public Methods
 
     public override IAsyncResult BeginRead (
-      byte[] buffer, int offset, int count, AsyncCallback callback, object state
+      byte[] buffer,
+      int offset,
+      int count,
+      AsyncCallback callback,
+      object state
     )
     {
-      if (_disposed) {
-        var name = GetType ().ToString ();
-
-        throw new ObjectDisposedException (name);
-      }
+      if (_disposed)
+        throw new ObjectDisposedException (ObjectName);
 
       if (buffer == null)
         throw new ArgumentNullException ("buffer");
@@ -180,7 +184,7 @@ namespace WebSocketSharp.Net
       var len = buffer.Length;
 
       if (offset + count > len) {
-        var msg = "The sum of 'offset' and 'count' is greater than the length of 'buffer'.";
+        var msg = "The sum of offset and count is greater than the length of buffer.";
 
         throw new ArgumentException (msg);
       }
@@ -200,6 +204,7 @@ namespace WebSocketSharp.Net
 
       if (count == 0) {
         ares.Count = nread;
+
         ares.Complete ();
 
         return ares;
@@ -209,6 +214,7 @@ namespace WebSocketSharp.Net
         _noMoreData = nread == 0;
 
         ares.Count = nread;
+
         ares.Complete ();
 
         return ares;
@@ -219,6 +225,7 @@ namespace WebSocketSharp.Net
       ares.Count = _bufferLength;
 
       var rstate = new ReadBufferState (buffer, offset, count, ares);
+
       rstate.InitialCount += nread;
 
       base.BeginRead (ares.Buffer, ares.Offset, ares.Count, onRead, rstate);
@@ -238,11 +245,8 @@ namespace WebSocketSharp.Net
 
     public override int EndRead (IAsyncResult asyncResult)
     {
-      if (_disposed) {
-        var name = GetType ().ToString ();
-
-        throw new ObjectDisposedException (name);
-      }
+      if (_disposed)
+        throw new ObjectDisposedException (ObjectName);
 
       if (asyncResult == null)
         throw new ArgumentNullException ("asyncResult");
