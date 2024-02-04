@@ -8,7 +8,7 @@
  * The MIT License
  *
  * Copyright (c) 2005 Novell, Inc. (http://www.novell.com)
- * Copyright (c) 2012-2022 sta.blockhead
+ * Copyright (c) 2012-2024 sta.blockhead
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -204,13 +204,15 @@ namespace WebSocketSharp.Net
     }
 
     internal void SendAuthenticationChallenge (
-      AuthenticationSchemes scheme, string realm
+      AuthenticationSchemes scheme,
+      string realm
     )
     {
       _response.StatusCode = 401;
 
-      var chal = new AuthenticationChallenge (scheme, realm).ToString ();
-      _response.Headers.InternalSet ("WWW-Authenticate", chal, true);
+      var val = new AuthenticationChallenge (scheme, realm).ToString ();
+
+      _response.Headers.InternalSet ("WWW-Authenticate", val, true);
 
       _response.Close ();
     }
@@ -390,7 +392,8 @@ namespace WebSocketSharp.Net
     ///   </para>
     /// </exception>
     public HttpListenerWebSocketContext AcceptWebSocket (
-      string protocol, Action<WebSocket> initializer
+      string protocol,
+      Action<WebSocket> initializer
     )
     {
       if (_websocketContext != null) {

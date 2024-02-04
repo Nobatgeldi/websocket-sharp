@@ -112,10 +112,8 @@ namespace WebSocketSharp.Net
     {
       _authSchemes = AuthenticationSchemes.Anonymous;
       _contextQueue = new Queue<HttpListenerContext> ();
-
       _contextRegistry = new LinkedList<HttpListenerContext> ();
       _contextRegistrySync = ((ICollection) _contextRegistry).SyncRoot;
-
       _log = new Logger ();
       _objectName = GetType ().ToString ();
       _prefixes = new HttpListenerPrefixCollection (this);
@@ -501,6 +499,7 @@ namespace WebSocketSharp.Net
 
       if (schm == AuthenticationSchemes.None) {
         var msg = "Authentication not allowed";
+
         context.SendError (403, msg);
 
         return false;
@@ -518,7 +517,8 @@ namespace WebSocketSharp.Net
     }
 
     private HttpListenerAsyncResult beginGetContext (
-      AsyncCallback callback, object state
+      AsyncCallback callback,
+      object state
     )
     {
       lock (_contextRegistrySync) {
@@ -537,6 +537,7 @@ namespace WebSocketSharp.Net
         }
 
         var ctx = _contextQueue.Dequeue ();
+
         ares.Complete (ctx, true);
 
         return ares;
@@ -591,6 +592,7 @@ namespace WebSocketSharp.Net
 
       foreach (var ares in aress) {
         var ex = new HttpListenerException (995, message);
+
         ares.Complete (ex);
       }
     }
@@ -615,6 +617,7 @@ namespace WebSocketSharp.Net
         cleanupContextRegistry ();
 
         var msg = "The listener is closed.";
+
         cleanupWaitQueue (msg);
 
         EndPointManager.RemoveListener (this);
@@ -650,6 +653,7 @@ namespace WebSocketSharp.Net
         }
 
         var ares = _waitQueue.Dequeue ();
+
         ares.Complete (context, false);
 
         return true;
@@ -912,6 +916,7 @@ namespace WebSocketSharp.Net
       }
 
       var ares = beginGetContext (null, null);
+
       ares.EndCalled = true;
 
       if (!ares.IsCompleted)
@@ -972,6 +977,7 @@ namespace WebSocketSharp.Net
         cleanupContextRegistry ();
 
         var msg = "The listener is stopped.";
+
         cleanupWaitQueue (msg);
 
         EndPointManager.RemoveListener (this);

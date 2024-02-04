@@ -8,7 +8,7 @@
  * The MIT License
  *
  * Copyright (c) 2005 Novell, Inc. (http://www.novell.com)
- * Copyright (c) 2012-2020 sta.blockhead
+ * Copyright (c) 2012-2024 sta.blockhead
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -47,30 +47,18 @@ namespace WebSocketSharp.Net
     #region Private Fields
 
     private string       _host;
+    private bool         _isSecure;
     private HttpListener _listener;
     private string       _original;
     private string       _path;
     private string       _port;
     private string       _prefix;
-    private bool         _secure;
+    private string       _scheme;
 
     #endregion
 
     #region Internal Constructors
 
-    /// <summary>
-    /// Initializes a new instance of the <see cref="HttpListenerPrefix"/> class
-    /// with the specified URI prefix and HTTP listener.
-    /// </summary>
-    /// <remarks>
-    /// This constructor must be called after calling the CheckPrefix method.
-    /// </remarks>
-    /// <param name="uriPrefix">
-    /// A <see cref="string"/> that specifies the URI prefix.
-    /// </param>
-    /// <param name="listener">
-    /// A <see cref="HttpListener"/> that specifies the HTTP listener.
-    /// </param>
     internal HttpListenerPrefix (string uriPrefix, HttpListener listener)
     {
       _original = uriPrefix;
@@ -91,7 +79,7 @@ namespace WebSocketSharp.Net
 
     public bool IsSecure {
       get {
-        return _secure;
+        return _isSecure;
       }
     }
 
@@ -119,39 +107,48 @@ namespace WebSocketSharp.Net
       }
     }
 
+    public string Scheme {
+      get {
+        return _scheme;
+      }
+    }
+
     #endregion
 
     #region Private Methods
 
     private void parse (string uriPrefix)
     {
-      if (uriPrefix.StartsWith ("https"))
-        _secure = true;
+      var compType = StringComparison.Ordinal;
+
+      _isSecure = uriPrefix.StartsWith ("https", compType);
+      _scheme = _isSecure ? "https" : "http";
+
+      var hostStartIdx = uriPrefix.IndexOf (':') + 3;
 
       var len = uriPrefix.Length;
-      var host = uriPrefix.IndexOf (':') + 3;
-      var root = uriPrefix.IndexOf ('/', host + 1, len - host - 1);
+      var rootIdx = uriPrefix
+                    .IndexOf ('/', hostStartIdx + 1, len - hostStartIdx - 1);
 
-      var colon = uriPrefix.LastIndexOf (':', root - 1, root - host - 1);
+      var colonIdx = uriPrefix
+                     .LastIndexOf (':', rootIdx - 1, rootIdx - hostStartIdx - 1);
 
-      if (uriPrefix[root - 1] != ']' && colon > host) {
-        _host = uriPrefix.Substring (host, colon - host);
-        _port = uriPrefix.Substring (colon + 1, root - colon - 1);
+      var hasPort = uriPrefix[rootIdx - 1] != ']' && colonIdx > hostStartIdx;
+
+      if (hasPort) {
+        _host = uriPrefix.Substring (hostStartIdx, colonIdx - hostStartIdx);
+        _port = uriPrefix.Substring (colonIdx + 1, rootIdx - colonIdx - 1);
       }
       else {
-        _host = uriPrefix.Substring (host, root - host);
-        _port = _secure ? "443" : "80";
+        _host = uriPrefix.Substring (hostStartIdx, rootIdx - hostStartIdx);
+        _port = _isSecure ? "443" : "80";
       }
 
-      _path = uriPrefix.Substring (root);
+      _path = uriPrefix.Substring (rootIdx);
 
-      _prefix = String.Format (
-                  "{0}://{1}:{2}{3}",
-                  _secure ? "https" : "http",
-                  _host,
-                  _port,
-                  _path
-                );
+      var fmt = "{0}://{1}:{2}{3}";
+
+      _prefix = String.Format (fmt, _scheme, _host, _port, _path);
     }
 
     #endregion
@@ -171,77 +168,59 @@ namespace WebSocketSharp.Net
         throw new ArgumentException (msg, "uriPrefix");
       }
 
-      var schm = uriPrefix.StartsWith ("http://")
-                 || uriPrefix.StartsWith ("https://");
+      var compType = StringComparison.Ordinal;
+      var isHttpSchm = uriPrefix.StartsWith ("http://", compType)
+                       || uriPrefix.StartsWith ("https://", compType);
 
-      if (!schm) {
-        var msg = "The scheme is not 'http' or 'https'.";
-
-        throw new ArgumentException (msg, "uriPrefix");
-      }
-
-      var end = len - 1;
-
-      if (uriPrefix[end] != '/') {
-        var msg = "It ends without '/'.";
+      if (!isHttpSchm) {
+        var msg = "The scheme is not http or https.";
 
         throw new ArgumentException (msg, "uriPrefix");
       }
 
-      var host = uriPrefix.IndexOf (':') + 3;
+      var endIdx = len - 1;
 
-      if (host >= end) {
+      if (uriPrefix[endIdx] != '/') {
+        var msg = "It ends without a forward slash.";
+
+        throw new ArgumentException (msg, "uriPrefix");
+      }
+
+      var hostStartIdx = uriPrefix.IndexOf (':') + 3;
+
+      if (hostStartIdx >= endIdx) {
         var msg = "No host is specified.";
 
         throw new ArgumentException (msg, "uriPrefix");
       }
 
-      if (uriPrefix[host] == ':') {
+      if (uriPrefix[hostStartIdx] == ':') {
         var msg = "No host is specified.";
 
         throw new ArgumentException (msg, "uriPrefix");
       }
 
-      var root = uriPrefix.IndexOf ('/', host, len - host);
+      var rootIdx = uriPrefix.IndexOf ('/', hostStartIdx, len - hostStartIdx);
 
-      if (root == host) {
+      if (rootIdx == hostStartIdx) {
         var msg = "No host is specified.";
 
         throw new ArgumentException (msg, "uriPrefix");
       }
 
-      if (uriPrefix[root - 1] == ':') {
+      if (uriPrefix[rootIdx - 1] == ':') {
         var msg = "No port is specified.";
 
         throw new ArgumentException (msg, "uriPrefix");
       }
 
-      if (root == end - 1) {
+      if (rootIdx == endIdx - 1) {
         var msg = "No path is specified.";
 
         throw new ArgumentException (msg, "uriPrefix");
       }
     }
 
-    /// <summary>
-    /// Determines whether the current instance is equal to the specified
-    /// <see cref="object"/> instance.
-    /// </summary>
-    /// <remarks>
-    /// This method will be required to detect duplicates in any collection.
-    /// </remarks>
-    /// <param name="obj">
-    ///   <para>
-    ///   An <see cref="object"/> instance to compare to the current instance.
-    ///   </para>
-    ///   <para>
-    ///   An reference to a <see cref="HttpListenerPrefix"/> instance.
-    ///   </para>
-    /// </param>
-    /// <returns>
-    /// <c>true</c> if the current instance and <paramref name="obj"/> have
-    /// the same URI prefix; otherwise, <c>false</c>.
-    /// </returns>
     public override bool Equals (object obj)
     {
       var pref = obj as HttpListenerPrefix;
@@ -249,15 +228,6 @@ namespace WebSocketSharp.Net
       return pref != null && _prefix.Equals (pref._prefix);
     }
 
-    /// <summary>
-    /// Gets the hash code for the current instance.
-    /// </summary>
-    /// <remarks>
-    /// This method will be required to detect duplicates in any collection.
-    /// </remarks>
-    /// <returns>
-    /// An <see cref="int"/> that represents the hash code.
-    /// </returns>
     public override int GetHashCode ()
     {
       return _prefix.GetHashCode ();

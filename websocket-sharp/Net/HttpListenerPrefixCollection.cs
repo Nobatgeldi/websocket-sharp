@@ -8,7 +8,7 @@
  * The MIT License
  *
  * Copyright (c) 2005 Novell, Inc. (http://www.novell.com)
- * Copyright (c) 2012-2020 sta.blockhead
+ * Copyright (c) 2012-2024 sta.blockhead
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -48,8 +48,8 @@ namespace WebSocketSharp.Net
   /// the <see cref="HttpListener"/> class.
   /// </summary>
   /// <remarks>
-  /// The <see cref="HttpListener"/> instance responds to the request which has
-  /// a requested URI that the prefixes most closely match.
+  /// The <see cref="HttpListener"/> instance responds to the request which
+  /// has a requested URI that the prefixes most closely match.
   /// </remarks>
   public class HttpListenerPrefixCollection : ICollection<string>
   {
@@ -65,6 +65,7 @@ namespace WebSocketSharp.Net
     internal HttpListenerPrefixCollection (HttpListener listener)
     {
       _listener = listener;
+
       _prefixes = new List<string> ();
     }
 
@@ -123,7 +124,7 @@ namespace WebSocketSharp.Net
     ///   </para>
     ///   <para>
     ///   It must be a well-formed URI prefix with http or https scheme,
-    ///   and must end with a '/'.
+    ///   and must end with a forward slash (/).
     ///   </para>
     /// </param>
     /// <exception cref="ArgumentNullException">
