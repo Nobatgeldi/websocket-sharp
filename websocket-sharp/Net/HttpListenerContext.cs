@@ -175,7 +175,9 @@ namespace WebSocketSharp.Net
     #region Private Methods
 
     private static string createErrorContent (
-      int statusCode, string statusDescription, string message
+      int statusCode,
+      string statusDescription,
+      string message
     )
     {
       return message != null && message.Length > 0
@@ -310,6 +312,17 @@ namespace WebSocketSharp.Net
     ///   <see langword="null"/> if not necessary.
     ///   </para>
     /// </param>
+    /// <exception cref="ArgumentException">
+    ///   <para>
+    ///   <paramref name="protocol"/> is an empty string.
+    ///   </para>
+    ///   <para>
+    ///   -or-
+    ///   </para>
+    ///   <para>
+    ///   <paramref name="protocol"/> contains an invalid character.
+    ///   </para>
+    /// </exception>
     /// <exception cref="InvalidOperationException">
     ///   <para>
     ///   This method has already been done.
@@ -319,17 +332,6 @@ namespace WebSocketSharp.Net
     ///   </para>
     ///   <para>
     ///   The client request is not a WebSocket handshake request.
-    ///   </para>
-    /// </exception>
-    /// <exception cref="ArgumentException">
-    ///   <para>
-    ///   <paramref name="protocol"/> is empty.
-    ///   </para>
-    ///   <para>
-    ///   -or-
-    ///   </para>
-    ///   <para>
-    ///   <paramref name="protocol"/> contains an invalid character.
     ///   </para>
     /// </exception>
     public HttpListenerWebSocketContext AcceptWebSocket (string protocol)
@@ -359,24 +361,13 @@ namespace WebSocketSharp.Net
     ///   An <see cref="T:System.Action{WebSocket}"/> delegate.
     ///   </para>
     ///   <para>
-    ///   It specifies the delegate that invokes the method called when
-    ///   initializing a new WebSocket instance.
+    ///   It specifies the delegate called when a new WebSocket instance is
+    ///   initialized.
     ///   </para>
     /// </param>
-    /// <exception cref="InvalidOperationException">
-    ///   <para>
-    ///   This method has already been done.
-    ///   </para>
-    ///   <para>
-    ///   -or-
-    ///   </para>
-    ///   <para>
-    ///   The client request is not a WebSocket handshake request.
-    ///   </para>
-    /// </exception>
     /// <exception cref="ArgumentException">
     ///   <para>
-    ///   <paramref name="protocol"/> is empty.
+    ///   <paramref name="protocol"/> is an empty string.
     ///   </para>
     ///   <para>
     ///   -or-
@@ -389,6 +380,17 @@ namespace WebSocketSharp.Net
     ///   </para>
     ///   <para>
     ///   <paramref name="initializer"/> caused an exception.
+    ///   </para>
+    /// </exception>
+    /// <exception cref="InvalidOperationException">
+    ///   <para>
+    ///   This method has already been done.
+    ///   </para>
+    ///   <para>
+    ///   -or-
+    ///   </para>
+    ///   <para>
+    ///   The client request is not a WebSocket handshake request.
     ///   </para>
     /// </exception>
     public HttpListenerWebSocketContext AcceptWebSocket (

@@ -4,7 +4,7 @@
  *
  * The MIT License
  *
- * Copyright (c) 2012-2023 sta.blockhead
+ * Copyright (c) 2012-2024 sta.blockhead
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -70,11 +70,11 @@ namespace WebSocketSharp.Server
     private System.Net.IPAddress    _address;
     private string                  _docRootPath;
     private string                  _hostname;
+    private bool                    _isSecure;
     private HttpListener            _listener;
     private Logger                  _log;
     private int                     _port;
     private Thread                  _receiveThread;
-    private bool                    _secure;
     private WebSocketServiceManager _services;
     private volatile ServerState    _state;
     private object                  _sync;
@@ -142,9 +142,6 @@ namespace WebSocketSharp.Server
     /// <param name="url">
     /// A <see cref="string"/> that specifies the HTTP URL of the server.
     /// </param>
-    /// <exception cref="ArgumentNullException">
-    /// <paramref name="url"/> is <see langword="null"/>.
-    /// </exception>
     /// <exception cref="ArgumentException">
     ///   <para>
     ///   <paramref name="url"/> is an empty string.
@@ -155,6 +152,9 @@ namespace WebSocketSharp.Server
     ///   <para>
     ///   <paramref name="url"/> is invalid.
     ///   </para>
+    /// </exception>
+    /// <exception cref="ArgumentNullException">
+    /// <paramref name="url"/> is <see langword="null"/>.
     /// </exception>
     public HttpServer (string url)
     {
@@ -239,11 +239,11 @@ namespace WebSocketSharp.Server
     /// An <see cref="int"/> that specifies the number of the port on which
     /// to listen.
     /// </param>
-    /// <exception cref="ArgumentNullException">
-    /// <paramref name="address"/> is <see langword="null"/>.
-    /// </exception>
     /// <exception cref="ArgumentException">
     /// <paramref name="address"/> is not a local IP address.
+    /// </exception>
+    /// <exception cref="ArgumentNullException">
+    /// <paramref name="address"/> is <see langword="null"/>.
     /// </exception>
     /// <exception cref="ArgumentOutOfRangeException">
     /// <paramref name="port"/> is less than 1 or greater than 65535.
@@ -273,11 +273,11 @@ namespace WebSocketSharp.Server
     /// A <see cref="bool"/>: <c>true</c> if the new instance provides
     /// secure connections; otherwise, <c>false</c>.
     /// </param>
-    /// <exception cref="ArgumentNullException">
-    /// <paramref name="address"/> is <see langword="null"/>.
-    /// </exception>
     /// <exception cref="ArgumentException">
     /// <paramref name="address"/> is not a local IP address.
+    /// </exception>
+    /// <exception cref="ArgumentNullException">
+    /// <paramref name="address"/> is <see langword="null"/>.
     /// </exception>
     /// <exception cref="ArgumentOutOfRangeException">
     /// <paramref name="port"/> is less than 1 or greater than 65535.
@@ -367,15 +367,12 @@ namespace WebSocketSharp.Server
     ///   from which to find the requested file.
     ///   </para>
     ///   <para>
-    ///   '/' or '\' is trimmed from the end of the value if present.
+    ///   / or \ is trimmed from the end of the value if present.
     ///   </para>
     ///   <para>
     ///   The default value is "./Public".
     ///   </para>
     /// </value>
-    /// <exception cref="ArgumentNullException">
-    /// The value specified for a set operation is <see langword="null"/>.
-    /// </exception>
     /// <exception cref="ArgumentException">
     ///   <para>
     ///   The value specified for a set operation is an empty string.
@@ -392,6 +389,9 @@ namespace WebSocketSharp.Server
     ///   <para>
     ///   The value specified for a set operation is an invalid path string.
     ///   </para>
+    /// </exception>
+    /// <exception cref="ArgumentNullException">
+    /// The value specified for a set operation is <see langword="null"/>.
     /// </exception>
     public string DocumentRootPath {
       get {
@@ -463,7 +463,7 @@ namespace WebSocketSharp.Server
     /// </value>
     public bool IsSecure {
       get {
-        return _secure;
+        return _isSecure;
       }
     }
 
@@ -610,7 +610,7 @@ namespace WebSocketSharp.Server
     /// </exception>
     public ServerSslConfiguration SslConfiguration {
       get {
-        if (!_secure) {
+        if (!_isSecure) {
           var msg = "The server does not provide secure connections.";
 
           throw new InvalidOperationException (msg);
@@ -621,7 +621,8 @@ namespace WebSocketSharp.Server
     }
 
     /// <summary>
-    /// Gets or sets the delegate used to find the credentials for an identity.
+    /// Gets or sets the delegate called to find the credentials for
+    /// an identity used to authenticate a client.
     /// </summary>
     /// <remarks>
     /// The set operation works if the current state of the server is
@@ -633,11 +634,11 @@ namespace WebSocketSharp.Server
     ///   delegate.
     ///   </para>
     ///   <para>
-    ///   The delegate invokes the method called when the server finds
+    ///   It represents the delegate called when the server finds
     ///   the credentials used to authenticate a client.
     ///   </para>
     ///   <para>
-    ///   The method must return <see langword="null"/> if the credentials
+    ///   It must return <see langword="null"/> if the credentials
     ///   are not found.
     ///   </para>
     ///   <para>
@@ -816,30 +817,36 @@ namespace WebSocketSharp.Server
     }
 
     private static HttpListener createListener (
-      string hostname, int port, bool secure
+      string hostname,
+      int port,
+      bool secure
     )
     {
-      var lsnr = new HttpListener ();
+      var ret = new HttpListener ();
 
+      var fmt = "{0}://{1}:{2}/";
       var schm = secure ? "https" : "http";
-      var pref = String.Format ("{0}://{1}:{2}/", schm, hostname, port);
+      var pref = String.Format (fmt, schm, hostname, port);
 
-      lsnr.Prefixes.Add (pref);
+      ret.Prefixes.Add (pref);
 
-      return lsnr;
+      return ret;
     }
 
     private void init (
-      string hostname, System.Net.IPAddress address, int port, bool secure
+      string hostname,
+      System.Net.IPAddress address,
+      int port,
+      bool secure
     )
     {
       _hostname = hostname;
       _address = address;
       _port = port;
-      _secure = secure;
+      _isSecure = secure;
 
       _docRootPath = "./Public";
-      _listener = createListener (_hostname, _port, _secure);
+      _listener = createListener (hostname, port, secure);
       _log = _listener.Log;
       _services = new WebSocketServiceManager (_log);
       _sync = new object ();
@@ -868,12 +875,14 @@ namespace WebSocketSharp.Server
 
       if (evt == null) {
         context.ErrorStatusCode = 501;
+
         context.SendError ();
 
         return;
       }
 
       var e = new HttpRequestEventArgs (context, _docRootPath);
+
       evt (this, e);
 
       context.Response.Close ();
@@ -974,7 +983,7 @@ namespace WebSocketSharp.Server
         if (_state == ServerState.Start || _state == ServerState.ShuttingDown)
           return;
 
-        if (_secure) {
+        if (_isSecure) {
           string msg;
 
           if (!checkCertificate (out msg))
@@ -1051,7 +1060,9 @@ namespace WebSocketSharp.Server
     }
 
     private static bool tryCreateUri (
-      string uriString, out Uri result, out string message
+      string uriString,
+      out Uri result,
+      out string message
     )
     {
       result = null;
@@ -1072,9 +1083,9 @@ namespace WebSocketSharp.Server
       }
 
       var schm = uri.Scheme;
-      var http = schm == "http" || schm == "https";
+      var isHttpSchm = schm == "http" || schm == "https";
 
-      if (!http) {
+      if (!isHttpSchm) {
         message = "The scheme part is not 'http' or 'https'.";
 
         return false;
@@ -1130,9 +1141,6 @@ namespace WebSocketSharp.Server
     ///   Also it must have a public parameterless constructor.
     ///   </para>
     /// </typeparam>
-    /// <exception cref="ArgumentNullException">
-    /// <paramref name="path"/> is <see langword="null"/>.
-    /// </exception>
     /// <exception cref="ArgumentException">
     ///   <para>
     ///   <paramref name="path"/> is an empty string.
@@ -1156,6 +1164,9 @@ namespace WebSocketSharp.Server
     ///   <para>
     ///   <paramref name="path"/> is already in use.
     ///   </para>
+    /// </exception>
+    /// <exception cref="ArgumentNullException">
+    /// <paramref name="path"/> is <see langword="null"/>.
     /// </exception>
     public void AddWebSocketService<TBehavior> (string path)
       where TBehavior : WebSocketBehavior, new ()
@@ -1181,8 +1192,8 @@ namespace WebSocketSharp.Server
     ///   An <see cref="T:System.Action{TBehavior}"/> delegate.
     ///   </para>
     ///   <para>
-    ///   The delegate invokes the method called when the service
-    ///   initializes a new session instance.
+    ///   It specifies the delegate called when the service initializes
+    ///   a new session instance.
     ///   </para>
     ///   <para>
     ///   <see langword="null"/> if not necessary.
@@ -1199,9 +1210,6 @@ namespace WebSocketSharp.Server
     ///   Also it must have a public parameterless constructor.
     ///   </para>
     /// </typeparam>
-    /// <exception cref="ArgumentNullException">
-    /// <paramref name="path"/> is <see langword="null"/>.
-    /// </exception>
     /// <exception cref="ArgumentException">
     ///   <para>
     ///   <paramref name="path"/> is an empty string.
@@ -1226,8 +1234,12 @@ namespace WebSocketSharp.Server
     ///   <paramref name="path"/> is already in use.
     ///   </para>
     /// </exception>
+    /// <exception cref="ArgumentNullException">
+    /// <paramref name="path"/> is <see langword="null"/>.
+    /// </exception>
     public void AddWebSocketService<TBehavior> (
-      string path, Action<TBehavior> initializer
+      string path,
+      Action<TBehavior> initializer
     )
       where TBehavior : WebSocketBehavior, new ()
     {
@@ -1254,9 +1266,6 @@ namespace WebSocketSharp.Server
     ///   / is trimmed from the end of the string if present.
     ///   </para>
     /// </param>
-    /// <exception cref="ArgumentNullException">
-    /// <paramref name="path"/> is <see langword="null"/>.
-    /// </exception>
     /// <exception cref="ArgumentException">
     ///   <para>
     ///   <paramref name="path"/> is an empty string.
@@ -1274,6 +1283,9 @@ namespace WebSocketSharp.Server
     ///   <paramref name="path"/> includes either or both
     ///   query and fragment components.
     ///   </para>
+    /// </exception>
+    /// <exception cref="ArgumentNullException">
+    /// <paramref name="path"/> is <see langword="null"/>.
     /// </exception>
     public bool RemoveWebSocketService (string path)
     {

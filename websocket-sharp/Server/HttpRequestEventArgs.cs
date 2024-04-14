@@ -4,7 +4,7 @@
  *
  * The MIT License
  *
- * Copyright (c) 2012-2021 sta.blockhead
+ * Copyright (c) 2012-2024 sta.blockhead
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -64,7 +64,8 @@ namespace WebSocketSharp.Server
     #region Internal Constructors
 
     internal HttpRequestEventArgs (
-      HttpListenerContext context, string documentRootPath
+      HttpListenerContext context,
+      string documentRootPath
     )
     {
       _context = context;
@@ -106,12 +107,11 @@ namespace WebSocketSharp.Server
     /// </summary>
     /// <value>
     ///   <para>
-    ///   A <see cref="IPrincipal"/> instance or <see langword="null"/>
-    ///   if not authenticated.
+    ///   A <see cref="IPrincipal"/> instance that represents identity,
+    ///   authentication scheme, and security roles for the client.
     ///   </para>
     ///   <para>
-    ///   That instance describes the identity, authentication scheme,
-    ///   and security roles for the client.
+    ///   <see langword="null"/> if the client is not authenticated.
     ///   </para>
     /// </value>
     public IPrincipal User {
@@ -161,20 +161,17 @@ namespace WebSocketSharp.Server
     /// </summary>
     /// <returns>
     ///   <para>
-    ///   An array of <see cref="byte"/> or <see langword="null"/>
-    ///   if it fails.
+    ///   An array of <see cref="byte"/> that receives the contents of
+    ///   the file.
     ///   </para>
     ///   <para>
-    ///   That array receives the contents of the file.
+    ///   <see langword="null"/> if the read has failed.
     ///   </para>
     /// </returns>
     /// <param name="path">
-    /// A <see cref="string"/> that specifies a virtual path to
-    /// find the file from the document folder.
+    /// A <see cref="string"/> that specifies a virtual path to find
+    /// the file from the document folder.
     /// </param>
-    /// <exception cref="ArgumentNullException">
-    /// <paramref name="path"/> is <see langword="null"/>.
-    /// </exception>
     /// <exception cref="ArgumentException">
     ///   <para>
     ///   <paramref name="path"/> is an empty string.
@@ -186,6 +183,9 @@ namespace WebSocketSharp.Server
     ///   <paramref name="path"/> contains "..".
     ///   </para>
     /// </exception>
+    /// <exception cref="ArgumentNullException">
+    /// <paramref name="path"/> is <see langword="null"/>.
+    /// </exception>
     public byte[] ReadFile (string path)
     {
       if (path == null)
@@ -194,8 +194,11 @@ namespace WebSocketSharp.Server
       if (path.Length == 0)
         throw new ArgumentException ("An empty string.", "path");
 
-      if (path.IndexOf ("..") > -1)
-        throw new ArgumentException ("It contains '..'.", "path");
+      if (path.Contains ("..")) {
+        var msg = "It contains \"..\".";
+
+        throw new ArgumentException (msg, "path");
+      }
 
       path = createFilePath (path);
       byte[] contents;
@@ -210,7 +213,7 @@ namespace WebSocketSharp.Server
     /// the <see cref="HttpServer"/> class.
     /// </summary>
     /// <returns>
-    /// <c>true</c> if it succeeds to read; otherwise, <c>false</c>.
+    /// <c>true</c> if the try has succeeded; otherwise, <c>false</c>.
     /// </returns>
     /// <param name="path">
     /// A <see cref="string"/> that specifies a virtual path to find
@@ -218,16 +221,13 @@ namespace WebSocketSharp.Server
     /// </param>
     /// <param name="contents">
     ///   <para>
-    ///   When this method returns, an array of <see cref="byte"/> or
-    ///   <see langword="null"/> if it fails.
+    ///   When this method returns, an array of <see cref="byte"/> that
+    ///   receives the contents of the file.
     ///   </para>
     ///   <para>
-    ///   That array receives the contents of the file.
+    ///   <see langword="null"/> if the read has failed.
     ///   </para>
     /// </param>
-    /// <exception cref="ArgumentNullException">
-    /// <paramref name="path"/> is <see langword="null"/>.
-    /// </exception>
     /// <exception cref="ArgumentException">
     ///   <para>
     ///   <paramref name="path"/> is an empty string.
@@ -239,6 +239,9 @@ namespace WebSocketSharp.Server
     ///   <paramref name="path"/> contains "..".
     ///   </para>
     /// </exception>
+    /// <exception cref="ArgumentNullException">
+    /// <paramref name="path"/> is <see langword="null"/>.
+    /// </exception>
     public bool TryReadFile (string path, out byte[] contents)
     {
       if (path == null)
@@ -247,8 +250,11 @@ namespace WebSocketSharp.Server
       if (path.Length == 0)
         throw new ArgumentException ("An empty string.", "path");
 
-      if (path.IndexOf ("..") > -1)
-        throw new ArgumentException ("It contains '..'.", "path");
+      if (path.Contains ("..")) {
+        var msg = "It contains \"..\".";
+
+        throw new ArgumentException (msg, "path");
+      }
 
       path = createFilePath (path);
 

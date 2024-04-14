@@ -8,7 +8,7 @@
  * The MIT License
  *
  * Copyright (c) 2005 Novell, Inc. (http://www.novell.com)
- * Copyright (c) 2012-2023 sta.blockhead
+ * Copyright (c) 2012-2024 sta.blockhead
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -855,16 +855,21 @@ namespace WebSocketSharp.Net
     /// Begins getting the certificate provided by the client asynchronously.
     /// </summary>
     /// <returns>
-    /// An <see cref="IAsyncResult"/> instance that indicates the status of
-    /// the operation.
+    /// An <see cref="IAsyncResult"/> instance that represents the status of
+    /// the asynchronous operation.
     /// </returns>
     /// <param name="requestCallback">
-    /// An <see cref="AsyncCallback"/> delegate that invokes the method called
-    /// when the operation is complete.
+    ///   <para>
+    ///   An <see cref="AsyncCallback"/> delegate.
+    ///   </para>
+    ///   <para>
+    ///   It specifies the delegate called when the asynchronous operation is
+    ///   complete.
+    ///   </para>
     /// </param>
     /// <param name="state">
-    /// An <see cref="object"/> that specifies a user defined object to pass
-    /// to the callback delegate.
+    /// An <see cref="object"/> that specifies a user defined object to pass to
+    /// <paramref name="requestCallback"/>.
     /// </param>
     /// <exception cref="NotSupportedException">
     /// This method is not supported.
@@ -886,8 +891,8 @@ namespace WebSocketSharp.Net
     /// provided by the client.
     /// </returns>
     /// <param name="asyncResult">
-    /// An <see cref="IAsyncResult"/> instance returned when the operation
-    /// started.
+    /// An <see cref="IAsyncResult"/> instance obtained by calling
+    /// the <see cref="BeginGetClientCertificate"/> method.
     /// </param>
     /// <exception cref="NotSupportedException">
     /// This method is not supported.

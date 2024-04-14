@@ -8,7 +8,7 @@
  * The MIT License
  *
  * Copyright (c) 2005 Novell, Inc. (http://www.novell.com)
- * Copyright (c) 2012-2023 sta.blockhead
+ * Copyright (c) 2012-2024 sta.blockhead
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -705,11 +705,11 @@ namespace WebSocketSharp.Net
     ///   An empty string if an RFC 2616 description does not exist.
     ///   </para>
     /// </value>
-    /// <exception cref="ArgumentNullException">
-    /// The value specified for a set operation is <see langword="null"/>.
-    /// </exception>
     /// <exception cref="ArgumentException">
     /// The value specified for a set operation contains an invalid character.
+    /// </exception>
+    /// <exception cref="ArgumentNullException">
+    /// The value specified for a set operation is <see langword="null"/>.
     /// </exception>
     /// <exception cref="InvalidOperationException">
     /// The response is already being sent.
@@ -893,9 +893,6 @@ namespace WebSocketSharp.Net
     /// A <see cref="string"/> that specifies the value of the header to
     /// append.
     /// </param>
-    /// <exception cref="ArgumentNullException">
-    /// <paramref name="name"/> is <see langword="null"/>.
-    /// </exception>
     /// <exception cref="ArgumentException">
     ///   <para>
     ///   <paramref name="name"/> is an empty string.
@@ -924,6 +921,9 @@ namespace WebSocketSharp.Net
     ///   <para>
     ///   <paramref name="name"/> is a restricted header name.
     ///   </para>
+    /// </exception>
+    /// <exception cref="ArgumentNullException">
+    /// <paramref name="name"/> is <see langword="null"/>.
     /// </exception>
     /// <exception cref="ArgumentOutOfRangeException">
     /// The length of <paramref name="value"/> is greater than 65,535
@@ -1050,9 +1050,6 @@ namespace WebSocketSharp.Net
     /// A <see cref="string"/> that specifies the absolute URL to which
     /// the client is redirected to locate a requested resource.
     /// </param>
-    /// <exception cref="ArgumentNullException">
-    /// <paramref name="url"/> is <see langword="null"/>.
-    /// </exception>
     /// <exception cref="ArgumentException">
     ///   <para>
     ///   <paramref name="url"/> is an empty string.
@@ -1063,6 +1060,9 @@ namespace WebSocketSharp.Net
     ///   <para>
     ///   <paramref name="url"/> is not an absolute URL.
     ///   </para>
+    /// </exception>
+    /// <exception cref="ArgumentNullException">
+    /// <paramref name="url"/> is <see langword="null"/>.
     /// </exception>
     /// <exception cref="InvalidOperationException">
     /// The response is already being sent.
@@ -1106,12 +1106,12 @@ namespace WebSocketSharp.Net
     /// <param name="cookie">
     /// A <see cref="Cookie"/> to set.
     /// </param>
-    /// <exception cref="ArgumentNullException">
-    /// <paramref name="cookie"/> is <see langword="null"/>.
-    /// </exception>
     /// <exception cref="ArgumentException">
     /// <paramref name="cookie"/> already exists in the cookies but
     /// it cannot be updated.
+    /// </exception>
+    /// <exception cref="ArgumentNullException">
+    /// <paramref name="cookie"/> is <see langword="null"/>.
     /// </exception>
     public void SetCookie (Cookie cookie)
     {
@@ -1137,9 +1137,6 @@ namespace WebSocketSharp.Net
     /// <param name="value">
     /// A <see cref="string"/> that specifies the value of the header to set.
     /// </param>
-    /// <exception cref="ArgumentNullException">
-    /// <paramref name="name"/> is <see langword="null"/>.
-    /// </exception>
     /// <exception cref="ArgumentException">
     ///   <para>
     ///   <paramref name="name"/> is an empty string.
@@ -1168,6 +1165,9 @@ namespace WebSocketSharp.Net
     ///   <para>
     ///   <paramref name="name"/> is a restricted header name.
     ///   </para>
+    /// </exception>
+    /// <exception cref="ArgumentNullException">
+    /// <paramref name="name"/> is <see langword="null"/>.
     /// </exception>
     /// <exception cref="ArgumentOutOfRangeException">
     /// The length of <paramref name="value"/> is greater than 65,535
